@@ -1,4 +1,4 @@
-# OPNsense Hardening
+# FW-01 Hardening
 
 ## HTTPS Management Interface
 
@@ -52,7 +52,7 @@ Adds a second authentication factor and reduces the impact of password compromis
 
 ### Configuration
 - Tailscale VPN deployed for remote administration.
-- OPNsense configured as a subnet router.
+- FW-01 configured as a subnet router.
 - Management access performed through Tailscale.
 
 ### Purpose
@@ -122,10 +122,31 @@ Following the upgrade, the Tailscale integration required manual recovery:
 
 ---
 
+## Configuration Backups
+
+### Current State
+
+Configuration backups are performed manually after significant configuration changes.
+
+### Purpose
+
+Provides a recovery mechanism in case of:
+
+- Configuration corruption
+- Failed upgrades
+- Accidental changes
+- Disaster recovery scenarios
+
+### Future Improvement
+
+Implement automated encrypted configuration backups.
+
+---
+
 ## Future Improvements
 
 - SSH public key authentication (if SSH is required).
 - Suricata IDS deployment.
 - CrowdSec integration.
-- Automated configuration backups.
+- Automated encrypted configuration backups.
 - Additional management access restrictions.
