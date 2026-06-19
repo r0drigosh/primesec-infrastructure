@@ -1,21 +1,23 @@
 # PrimeSec Infrastructure
 
-PrimeSec Infrastructure is a hands-on infrastructure portfolio project focused on Systems Administration, networking, virtualization, Windows Server administration, Linux server administration, security hardening, validation, and technical documentation.
+PrimeSec Infrastructure is a virtualized infrastructure lab focused on core systems administration tasks: firewalling, routing, NAT, DHCP, DNS, Active Directory, Group Policy, Linux web service hosting, remote administration, and validation.
 
-The project simulates a small business infrastructure environment using virtualized systems. Its purpose is to demonstrate practical junior-level infrastructure skills through real implementation work, documented design decisions, and validation evidence.
+The current Phase 1 environment represents a small internal network with one firewall, one domain controller, one domain-joined workstation, and one Linux web server.
 
-> This README is a correction pass for the current repository state. A final polished portfolio README can be produced after the remaining documentation cleanup is complete.
+This project is not intended to represent a production enterprise environment. It is a controlled lab used to build, document, and validate common infrastructure services.
+
+> The architecture diagram still needs to be refreshed. The written documentation reflects the current Phase 1 implementation more accurately than the existing diagram.
 
 ---
 
-## Infrastructure Status
+## Phase 1 Status
 
 | Component | Role | Status |
 |-----------|------|--------|
-| FW-01 | OPNsense firewall, gateway, NAT, DHCP, remote access entry point | Complete |
-| DC-01 | Windows Server 2022 Domain Controller, Active Directory, DNS, Group Policy | Complete |
-| WS-01 | Windows domain-joined workstation | Complete |
-| WEB-01 | Ubuntu Server 24.04.4 LTS with Apache HTTP Server | Complete |
+| FW-01 | OPNsense firewall, gateway, NAT, DHCP, Tailscale remote access | Implemented |
+| DC-01 | Windows Server 2022 Domain Controller, AD DS, DNS, Group Policy | Implemented |
+| WS-01 | Windows 11 Enterprise domain-joined workstation | Implemented |
+| WEB-01 | Ubuntu Server 24.04.4 LTS with Apache HTTP Server | Implemented |
 
 ---
 
@@ -23,13 +25,12 @@ The project simulates a small business infrastructure environment using virtuali
 
 PrimeSec Infrastructure is deployed as a virtualized lab environment on Proxmox VE.
 
-The current Phase 1 environment includes:
+Current Phase 1 components:
 
-- A dedicated firewall and gateway layer
-- A Windows Active Directory domain
-- A managed Windows workstation
-- A Linux-based Apache web server
-- Validation screenshots and technical documentation for each major component
+- FW-01 provides firewalling, routing, NAT, DHCP, gateway services, and Tailscale-based remote administration.
+- DC-01 provides Active Directory Domain Services, integrated DNS, and Group Policy.
+- WS-01 is joined to the `primesec.local` domain and receives policy from DC-01.
+- WEB-01 hosts a basic Apache web service on Ubuntu Server.
 
 ```text
                 Internet / Upstream Network
@@ -48,41 +49,39 @@ The current Phase 1 environment includes:
         ▼                ▼                ▼
    ┌────────┐       ┌────────┐       ┌────────┐
    │ DC-01  │       │ WS-01  │       │ WEB-01 │
-   │ AD DS  │       │ Win WS │       │ Apache │
+   │ AD DS  │       │ Win 11 │       │ Apache │
    │ DNS    │       │ Domain │       │ Ubuntu │
    └────────┘       └────────┘       └────────┘
 ```
 
 ### Diagram Note
 
-The existing architecture diagram files are kept temporarily:
+The following diagram files are still present:
 
 - `diagrams/v1-architecture.drawio`
 - `diagrams/v1-architecture.png`
 
-The diagram is pending update to fully reflect the completed DC-01 and WS-01 implementation. It has not been regenerated in this correction pass.
+The diagram has not yet been updated to fully reflect the completed DC-01 and WS-01 implementation.
 
 ---
 
 ## Network and DNS Model
 
-The final internal Active Directory namespace is:
+The current Active Directory namespace is:
 
 ```text
 primesec.local
 ```
 
-The current DNS model is:
-
 | Function | System |
 |----------|--------|
 | Default gateway | FW-01 / 10.10.10.1 |
-| DHCP ownership | FW-01 |
-| Authoritative internal DNS for Active Directory | DC-01 / 10.10.10.10 |
-| Active Directory domain namespace | primesec.local |
-| Secure remote access entry point | FW-01 through Tailscale |
+| DHCP provider | FW-01 |
+| Active Directory DNS authority | DC-01 / 10.10.10.10 |
+| Active Directory domain | primesec.local |
+| Remote administration entry point | FW-01 through Tailscale |
 
-DHCP should provide the following client configuration:
+DHCP configuration:
 
 | DHCP Option | Value |
 |-------------|-------|
@@ -91,7 +90,13 @@ DHCP should provide the following client configuration:
 | Domain/Search Suffix | primesec.local |
 | DHCP Scope Range | 10.10.10.100 - 10.10.10.199 |
 
-Older references to `primesec.internal` belong to previous lab naming and should not be treated as the current Active Directory DNS design.
+Verified DHCP lease:
+
+| Item | Value |
+|------|-------|
+| Client | WS-01 |
+| Lease Address | 10.10.10.152 |
+| Lease Type | Dynamic |
 
 ---
 
@@ -104,7 +109,7 @@ Older references to `primesec.internal` belong to previous lab naming and should
 - Active Directory Domain Services
 - Active Directory Integrated DNS
 - Group Policy
-- Windows Workstation
+- Windows 11 Enterprise
 - Ubuntu Server 24.04.4 LTS
 - Apache HTTP Server
 - UFW
@@ -112,26 +117,25 @@ Older references to `primesec.internal` belong to previous lab naming and should
 
 ---
 
-## Skills Demonstrated
+## Technical Areas Covered
 
-This project demonstrates practical skills relevant to junior Systems Administration, Infrastructure, and IT Operations roles:
+The current implementation covers:
 
-- Virtualized infrastructure deployment
-- Firewall administration
-- Network routing and NAT
-- DHCP planning
-- DNS design and troubleshooting
+- Virtual machine deployment
+- Internal network segmentation
+- Firewall and gateway configuration
+- NAT and routing
+- DHCP configuration and validation
 - Active Directory deployment
-- Organizational Unit design
+- DNS design for a Windows domain
+- Organizational Unit structure
 - Group Policy configuration
 - Domain-joined workstation management
 - Linux server deployment
-- Apache web service administration
+- Apache service administration
 - Host-based firewall configuration
-- Secure remote administration
-- System hardening
-- Validation testing
-- Technical documentation
+- Tailscale-based remote administration
+- Service validation and documentation
 
 ---
 
@@ -184,7 +188,7 @@ Validation evidence is stored under the `assets/` directory.
 | WS-01 | `assets/ws-01/` |
 | WEB-01 | `assets/web-01/` |
 
-The evidence includes screenshots for connectivity, DNS resolution, service status, firewall configuration, Active Directory validation, Group Policy processing, domain membership, and web service availability.
+The evidence includes screenshots for connectivity, DNS resolution, DHCP configuration, DHCP lease assignment, service status, firewall configuration, Active Directory validation, Group Policy processing, domain membership, and web service availability.
 
 ---
 
@@ -218,42 +222,22 @@ PrimeSec-Infrastructure/
 
 ---
 
-## Current Progress
+## Known Limitations
 
-### Completed
+The architecture diagram has not yet been refreshed to fully match the completed Phase 1 environment.
 
-- OPNsense firewall deployment
-- Firewall hardening
-- Tailscale remote administration
-- DHCP ownership assigned to FW-01
-- Active Directory Domain Services deployment
-- Active Directory Integrated DNS deployment
-- Group Policy configuration
-- Windows workstation domain join
-- Ubuntu Server deployment
-- Apache web service deployment
-- Linux host-based firewall configuration
-- Component validation and evidence collection
-- Technical documentation for Phase 1 components
-
-### Pending Cleanup
-
-- Update the architecture diagram to reflect the completed DC-01 and WS-01 implementation
-- Continue documentation consistency review
-- Produce final recruiter-facing README polish after the critical documentation issues are resolved
+The written documentation reflects the current implementation more accurately than the existing diagram.
 
 ---
 
-## Project Purpose
+## Project Scope
 
-PrimeSec Infrastructure is not intended to represent a production enterprise environment.
+PrimeSec Infrastructure is a small infrastructure lab.
 
-It is a realistic junior/internship infrastructure portfolio project designed to demonstrate:
+It focuses on building and validating a clear Phase 1 environment with:
 
-- Practical implementation ability
-- Understanding of infrastructure components
-- Documentation discipline
-- Validation mindset
-- Awareness of operational and security considerations
-
-The project is suitable for review by instructors, internship recruiters, junior Systems Administration hiring managers, and technical interviewers.
+- One firewall/gateway
+- One Active Directory domain controller
+- One managed Windows workstation
+- One Linux web server
+- Supporting documentation and validation evidence

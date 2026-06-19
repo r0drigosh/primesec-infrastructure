@@ -2,11 +2,9 @@
 
 ## Purpose
 
-WEB-01 is the Linux-based web server component of the PrimeSec Infrastructure environment.
+WEB-01 is the Linux web server in the PrimeSec Infrastructure environment.
 
-Its primary purpose is to provide a practical platform for demonstrating core Systems Administration skills, including Linux server deployment, network configuration, service management, security hardening, validation, and technical documentation.
-
-The server hosts a simple Apache web page used to validate service availability and demonstrate successful deployment of a web service within the lab environment.
+It runs Ubuntu Server and Apache HTTP Server. The server hosts a simple web page used to validate network connectivity, service availability, firewall configuration, and Linux server administration tasks.
 
 ---
 
@@ -14,7 +12,7 @@ The server hosts a simple Apache web page used to validate service availability 
 
 | Property | Value |
 |----------|-------|
-| Hostname | web-01 |
+| Hostname | WEB-01 |
 | Operating System | Ubuntu Server 24.04.4 LTS |
 | Platform Type | Virtual Machine |
 | Virtualization Platform | Proxmox VE |
@@ -31,42 +29,40 @@ The server hosts a simple Apache web page used to validate service availability 
 
 ## Infrastructure Role
 
-WEB-01 functions as the dedicated Linux web server within the PrimeSec Infrastructure environment.
+WEB-01 provides a Linux-based service inside the internal infrastructure network.
 
-The system provides a hosted web service that can be accessed from the internal network and serves as a platform for validating:
+The system is used to validate:
 
-- Linux server administration
+- Ubuntu Server deployment
 - Static network configuration
-- Apache service deployment
+- Apache service operation
 - Service management with systemd
-- Host-based firewall configuration
+- Host-based firewall rules with UFW
 - Network connectivity
 - DNS resolution
-- Infrastructure security hardening
+- Basic Linux hardening steps
 
-WEB-01 operates behind FW-01 and is part of the internal infrastructure network.
+WEB-01 operates behind FW-01 on the internal network.
 
 ---
 
 ## Services Provided
 
-WEB-01 currently provides the following infrastructure services.
-
 ### Web Hosting
 
-Hosts a lightweight Apache landing page used for service validation and infrastructure testing.
+WEB-01 hosts a lightweight Apache landing page for service validation.
 
 ### HTTP Service
 
-Provides HTTP connectivity to clients within the PrimeSec Infrastructure environment.
+WEB-01 provides HTTP access from the internal network.
 
-### Linux Administration Platform
+### Linux Server Administration
 
-Serves as a dedicated Linux server for demonstrating operating system management, service administration, and security configuration.
+WEB-01 is used for Linux administration tasks such as package management, service control, firewall configuration, hostname validation, and update configuration.
 
-### Infrastructure Validation Endpoint
+### Validation Endpoint
 
-Provides a testable service endpoint used to verify network connectivity, routing, firewall behavior, and web service availability.
+WEB-01 provides a testable service endpoint for checking routing, firewall behavior, DNS resolution, and web service availability.
 
 ---
 
@@ -84,15 +80,23 @@ FW-01 provides:
 - Internet access
 - Network security controls
 
-The internal default gateway is `10.10.10.1`.
+The internal default gateway is:
+
+```text
+10.10.10.1
+```
 
 ### DC-01 — Active Directory DNS
 
 DC-01 is the authoritative internal DNS server for the `primesec.local` Active Directory domain.
 
-The internal DNS authority is `10.10.10.10`.
+The internal DNS authority is:
 
-For the final DNS model, systems that need to resolve internal `primesec.local` records should use DC-01 as the internal DNS authority.
+```text
+10.10.10.10
+```
+
+Systems that need to resolve internal `primesec.local` records should use DC-01 as the internal DNS authority.
 
 ### Proxmox VE
 
@@ -105,9 +109,17 @@ Proxmox VE provides:
 
 ### Internal Network
 
-WEB-01 operates within the PrimeSec Infrastructure internal network: `10.10.10.0/24`.
+WEB-01 operates within the internal network:
 
-WEB-01 uses the static IP address `10.10.10.11`.
+```text
+10.10.10.0/24
+```
+
+WEB-01 uses the static IP address:
+
+```text
+10.10.10.11
+```
 
 ---
 
@@ -115,7 +127,7 @@ WEB-01 uses the static IP address `10.10.10.11`.
 
 Earlier documentation described WEB-01 as relying on FW-01 for DNS resolution.
 
-The final project DNS model is now:
+The current DNS model is:
 
 | Function | System |
 |----------|--------|
@@ -137,28 +149,12 @@ FW-01 may still provide upstream or external DNS forwarding for non-domain or ne
 | [Hardening](hardening.md) | Security hardening measures applied to WEB-01 |
 | [Validation](validation.md) | Operational testing and validation results |
 | [Design Decisions](design-decisions.md) | Architectural decisions and implementation rationale |
-| [DNS Configuration](../networking/dns.md) | Final DNS model for the infrastructure |
+| [DNS Configuration](../networking/dns.md) | DNS model for the infrastructure |
 
 ---
 
-## Skills Demonstrated
+## Summary
 
-WEB-01 demonstrates practical experience in:
+WEB-01 is a static-IP Ubuntu Server running Apache HTTP Server on the internal network.
 
-- Linux server administration
-- Ubuntu Server deployment
-- Static IP configuration
-- Hostname management
-- Apache web server administration
-- Service management with systemd
-- SSH administration
-- Network troubleshooting
-- DNS validation
-- Host-based firewall configuration with UFW
-- Linux security hardening
-- Automatic security update management
-- Infrastructure documentation
-- Virtualization fundamentals
-- Systems validation and testing
-
-WEB-01 provides a practical example of a managed Linux infrastructure service and demonstrates foundational administration skills expected in junior Systems Administration, Infrastructure, and IT Operations roles.
+It provides a basic Linux service for testing connectivity, DNS resolution, firewall configuration, service startup, and web access within the Phase 1 environment.

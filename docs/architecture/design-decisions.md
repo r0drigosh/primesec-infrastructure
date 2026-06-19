@@ -4,9 +4,9 @@
 
 This document records the main architecture decisions used in the PrimeSec Infrastructure environment.
 
-The goal is to explain why the environment was built in its current form and to provide technical context for instructors, recruiters, and junior Systems Administration reviewers.
+The goal is to explain why the current Phase 1 lab is structured in this way and to keep the technical reasoning visible in the repository.
 
-This is a junior/internship infrastructure portfolio project. The design intentionally focuses on clarity, practical implementation, and realistic small-environment administration rather than production-scale enterprise complexity.
+The design is intentionally small. It focuses on practical implementation, clear responsibilities, and a manageable infrastructure scope.
 
 ---
 
@@ -16,10 +16,10 @@ The current Phase 1 environment includes the following systems:
 
 | System | Role | Status |
 |--------|------|--------|
-| FW-01 | Firewall, gateway, NAT, DHCP, remote access entry point | Complete |
+| FW-01 | Firewall, gateway, NAT, DHCP, Tailscale remote access | Complete |
 | DC-01 | Windows Server Domain Controller, Active Directory, DNS, Group Policy | Complete |
-| WS-01 | Windows domain-joined workstation | Complete |
-| WEB-01 | Ubuntu Server with Apache HTTP Server | Complete |
+| WS-01 | Windows 11 Enterprise domain-joined workstation | Complete |
+| WEB-01 | Ubuntu Server 24.04.4 LTS with Apache HTTP Server | Complete |
 
 ---
 
@@ -31,24 +31,16 @@ The environment is deployed as a virtualized infrastructure lab.
 
 ### Rationale
 
-Virtualization provides a practical way to build and manage multiple infrastructure systems without requiring separate physical hardware for each server or workstation.
+Virtualization allows several infrastructure systems to run on a single physical host while keeping each role separated.
 
-This approach supports:
+This supports:
 
 - Repeatable deployment
-- Easier testing
 - Snapshot-based recovery
-- Isolated infrastructure experimentation
-- Cost-effective learning
-- Clear portfolio documentation
-
-### Skills Demonstrated
-
-- Virtual machine deployment
-- Virtual networking
-- Infrastructure segmentation
-- System lifecycle management
-- Lab environment planning
+- Easier testing
+- Isolated lab networking
+- Lower hardware requirements
+- Clear separation between firewall, server, workstation, and web service roles
 
 ---
 
@@ -56,13 +48,13 @@ This approach supports:
 
 ### Decision
 
-FW-01 was deployed as the central firewall, default gateway, NAT device, DHCP provider, and secure remote access entry point.
+FW-01 was deployed as the central firewall, default gateway, NAT device, DHCP provider, and remote administration entry point.
 
 ### Rationale
 
-Using a dedicated firewall reflects common small-business and lab infrastructure design.
+Using a dedicated firewall keeps the network edge separate from server roles.
 
-FW-01 provides the network boundary between the internal infrastructure network and upstream connectivity. It also centralizes routing, NAT, firewall policy, DHCP, and remote administration access.
+FW-01 handles traffic between the internal infrastructure network and upstream connectivity. It also centralizes routing, NAT, firewall rules, DHCP, and Tailscale-based access.
 
 ### Current Responsibilities
 
@@ -73,7 +65,7 @@ FW-01 provides:
 - NAT
 - DHCP
 - Firewall policy enforcement
-- Secure remote access through Tailscale
+- Remote administration through Tailscale
 
 The default gateway for the internal network is:
 
@@ -97,7 +89,9 @@ DC-01 was deployed as the Windows Server Domain Controller for the environment.
 
 ### Rationale
 
-Active Directory is a core technology for Windows infrastructure administration. Deploying DC-01 allows the project to demonstrate centralized identity, authentication, directory structure, Group Policy, DNS integration, and workstation management.
+Active Directory is required to provide domain-based identity, authentication, DNS integration, and Group Policy management for Windows systems.
+
+DC-01 gives the lab a central Windows administration point and allows WS-01 to be managed as a domain workstation.
 
 ### Current Domain Model
 
@@ -109,15 +103,6 @@ Active Directory is a core technology for Windows infrastructure administration.
 | Domain Controller IP Address | 10.10.10.10 |
 | DNS Model | Active Directory Integrated DNS |
 
-### Skills Demonstrated
-
-- Active Directory Domain Services deployment
-- Domain design
-- User and group administration
-- Organizational Unit planning
-- Group Policy management
-- Centralized Windows administration
-
 ---
 
 ## DNS Authority Model
@@ -126,7 +111,7 @@ Active Directory is a core technology for Windows infrastructure administration.
 
 DC-01 is the authoritative internal DNS server for the Active Directory domain.
 
-The final internal AD/domain namespace is:
+The current AD/domain namespace is:
 
 ```text
 primesec.local
@@ -134,11 +119,11 @@ primesec.local
 
 ### Rationale
 
-Active Directory depends heavily on DNS for service discovery, authentication, domain controller location, and domain-joined system operation.
+Active Directory relies on DNS for domain controller discovery, authentication, service location, and domain-joined system operation.
 
-Using DC-01 as the authoritative internal DNS server aligns the DNS design with the Active Directory architecture.
+For that reason, domain-joined systems should use DC-01 as their DNS server.
 
-### Final DNS Responsibilities
+### DNS Responsibilities
 
 | Function | Responsible System |
 |----------|--------------------|
@@ -148,7 +133,7 @@ Using DC-01 as the authoritative internal DNS server aligns the DNS design with 
 | Gateway and DHCP services | FW-01 |
 | Optional upstream/external DNS forwarding for non-domain or network-level services | FW-01 |
 
-Older references to `primesec.internal` are considered legacy lab naming and are not part of the current final DNS model.
+Older references to `primesec.internal` are legacy lab naming and are not part of the current DNS model.
 
 ---
 
@@ -160,9 +145,12 @@ FW-01 owns DHCP for the internal infrastructure network.
 
 ### Rationale
 
-Keeping DHCP on the firewall simplifies the lab design and matches a common small-environment model where the firewall provides basic network services while the Domain Controller provides identity and internal DNS.
+Keeping DHCP on FW-01 keeps the network services split simple:
 
-This avoids unnecessary Windows DHCP complexity at this stage while still demonstrating a realistic division of responsibilities.
+- FW-01 handles gateway, DHCP, NAT, firewalling, and remote access.
+- DC-01 handles Active Directory and internal domain DNS.
+
+This avoids adding Windows DHCP at this stage while still keeping the client configuration aligned with the domain DNS design.
 
 ### DHCP Client Configuration
 
@@ -175,7 +163,7 @@ DHCP is configured to provide the following values to clients:
 | Domain/Search Suffix | primesec.local |
 | DHCP Scope Range | 10.10.10.100 - 10.10.10.199 |
 
-The repository includes validation evidence showing that WS-01 received a dynamic DHCP lease from FW-01.
+Validation evidence shows that WS-01 received a dynamic DHCP lease from FW-01.
 
 | Item | Verified Value |
 |------|----------------|
@@ -193,15 +181,19 @@ WS-01 was deployed as a domain-joined Windows workstation.
 
 ### Rationale
 
-A domain controller without a managed endpoint does not fully demonstrate centralized administration. WS-01 provides a practical validation target for domain membership, authentication, Group Policy processing, and workstation security controls.
+A domain controller needs at least one domain-joined client to validate authentication, DNS, Group Policy processing, and workstation management.
 
-### Skills Demonstrated
+WS-01 provides that validation target.
 
-- Domain join process
-- Workstation identity management
-- Group Policy application
-- Centralized endpoint administration
-- User-facing security policy validation
+Current WS-01 state:
+
+| Property | Value |
+|----------|-------|
+| Hostname | WS-01 |
+| Operating System | Windows 11 Enterprise |
+| Domain | primesec.local |
+| Current DHCP Lease | 10.10.10.152 |
+| Lease Type | Dynamic |
 
 ---
 
@@ -213,22 +205,18 @@ WEB-01 was deployed as a Linux-based Apache web server.
 
 ### Rationale
 
-A Linux web server adds a non-Windows infrastructure component and demonstrates broader Systems Administration capability.
+WEB-01 adds a Linux server role to the environment and provides a simple service that can be tested from the internal network.
 
-WEB-01 provides a practical service endpoint for validating:
+It is intentionally limited to a basic Apache deployment. The focus is server deployment, service management, firewall configuration, and validation rather than web application development.
 
-- Linux server deployment
-- Apache service management
-- Static server configuration
-- Host-based firewall rules
-- Network connectivity
-- Web service availability
+Current WEB-01 state:
 
-### Scope Control
-
-WEB-01 is intentionally simple. It hosts a lightweight Apache landing page rather than a complex application.
-
-This keeps the project focused on infrastructure administration instead of web development.
+| Property | Value |
+|----------|-------|
+| Hostname | WEB-01 |
+| Operating System | Ubuntu Server 24.04.4 LTS |
+| Primary Service | Apache HTTP Server |
+| IP Address | 10.10.10.11 |
 
 ---
 
@@ -236,21 +224,38 @@ This keeps the project focused on infrastructure administration instead of web d
 
 ### Decision
 
-Secure remote administration is provided through Tailscale on FW-01.
+Remote administration is provided through Tailscale on FW-01.
 
 ### Rationale
 
-Remote administration is useful in infrastructure environments, but exposing management interfaces directly to the public Internet would be poor practice.
+Administrative access should not require exposing firewall management services directly to the public Internet.
 
-Using Tailscale allows management access through an encrypted mesh VPN model while keeping administrative services away from direct public exposure.
+Tailscale provides a controlled remote access path for administration while keeping the management interface away from direct public exposure.
 
-### Skills Demonstrated
+---
 
-- VPN-based administration
-- Secure management access
-- Firewall access control
-- Remote troubleshooting
-- Operational security awareness
+## Group Policy
+
+### Decision
+
+Group Policy was implemented through DC-01 and applied to the domain environment.
+
+### Rationale
+
+Group Policy provides a central way to configure domain and workstation settings.
+
+Implemented policies include:
+
+- GPO-Domain-Password-Policy
+- GPO-Interactive-Logon-Notice
+- GPO-Workstation-Security-Baseline
+- GPO-Workstation-Windows-Update
+
+Exported Group Policy reports are stored under:
+
+```text
+reports/gpo/
+```
 
 ---
 
@@ -258,33 +263,29 @@ Using Tailscale allows management access through an encrypted mesh VPN model whi
 
 ### Decision
 
-Documentation and validation evidence are treated as core project deliverables.
+Documentation and validation screenshots are stored in the repository.
 
 ### Rationale
 
-Infrastructure work is not complete unless it can be understood, reviewed, maintained, and validated.
-
-The repository includes technical documentation and screenshots to show that the environment was implemented and tested.
-
-### Evidence Areas
+The lab should be understandable from the documentation without requiring access to the running virtual machines.
 
 Validation evidence exists for:
 
-- FW-01 connectivity, DNS, DHCP, and remote administration
-- DC-01 Active Directory, DNS, and Domain Controller health
-- WS-01 domain membership, Group Policy processing, and dynamic DHCP lease assignment
-- WEB-01 connectivity, DNS, Apache, firewall, service startup, and web page access
+- FW-01 connectivity, DNS, DHCP, and Tailscale access
+- DC-01 Active Directory, DNS, and domain controller health
+- WS-01 domain membership and Group Policy processing
+- WEB-01 connectivity, DNS resolution, Apache status, firewall state, service startup, and web page access
 
 ---
 
 ## Architecture Diagram Status
 
-The existing architecture diagram files are retained temporarily:
+The existing architecture diagram files are retained:
 
 - `diagrams/v1-architecture.drawio`
 - `diagrams/v1-architecture.png`
 
-The diagram is pending update to fully reflect the completed DC-01 and WS-01 implementation.
+The diagram still needs to be refreshed to fully reflect the completed DC-01 and WS-01 implementation.
 
 No diagram regeneration was performed during this documentation update.
 
@@ -292,11 +293,11 @@ No diagram regeneration was performed during this documentation update.
 
 ## Design Summary
 
-PrimeSec Infrastructure uses a simple and realistic small-environment architecture:
+The current Phase 1 design uses a simple internal network:
 
-- FW-01 provides routing, NAT, DHCP, firewalling, and remote access.
-- DC-01 provides Active Directory, authoritative internal DNS, and Group Policy.
-- WS-01 demonstrates centralized workstation administration.
-- WEB-01 demonstrates Linux server and Apache service administration.
+- FW-01 handles firewalling, gateway services, NAT, DHCP, and remote administration.
+- DC-01 handles Active Directory, authoritative internal DNS, and Group Policy.
+- WS-01 validates domain membership, DHCP client configuration, and Group Policy processing.
+- WEB-01 provides a basic Linux-hosted Apache service.
 
-This design is appropriate for a junior/internship infrastructure portfolio because it demonstrates practical systems administration skills without unnecessary enterprise overengineering.
+The scope is intentionally limited so that each component has a clear role and can be documented and validated.

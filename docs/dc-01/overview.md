@@ -1,10 +1,10 @@
-# Overview
+# DC-01 Overview
 
 ## Purpose
 
-DC-01 is the primary Domain Controller for the PrimeSec Infrastructure environment. It provides centralized identity, authentication, authorization, and name resolution services through Active Directory Domain Services (AD DS) and integrated DNS.
+DC-01 is the Domain Controller for the PrimeSec Infrastructure environment.
 
-The server establishes the foundation for centralized systems administration by enabling domain-based management of users, groups, computers, and Group Policy Objects (GPOs). As the first Windows infrastructure component within the environment, DC-01 serves as the central management platform for domain resources and security policies.
+It runs Windows Server 2022 and provides Active Directory Domain Services, Active Directory Integrated DNS, and Group Policy management for the `primesec.local` domain.
 
 ---
 
@@ -12,19 +12,19 @@ The server establishes the foundation for centralized systems administration by 
 
 DC-01 is responsible for:
 
-- Centralized user authentication
+- Domain authentication
 - Active Directory administration
-- DNS name resolution
+- DNS name resolution for the AD domain
 - Group Policy deployment
 - Domain computer management
-- Security policy enforcement
+- Security policy configuration
 
 ---
 
 ## Server Specifications
 
 | Property | Value |
-|-----------|---------|
+|----------|-------|
 | Hostname | DC-01 |
 | Operating System | Windows Server 2022 |
 | Platform | Proxmox VE |
@@ -38,26 +38,26 @@ DC-01 is responsible for:
 
 ## Installed Roles and Services
 
-### Active Directory Domain Services (AD DS)
+### Active Directory Domain Services
 
-Active Directory Domain Services provides centralized identity and access management for the PrimeSec environment.
+Active Directory Domain Services provides identity and access management for the domain.
 
 Implemented capabilities include:
 
 - Domain authentication
 - User and group administration
-- Organizational Unit (OU) management
+- Organizational Unit management
 - Group Policy administration
 - Computer account management
-- Security policy enforcement
+- Security policy configuration
 
-The deployment enables centralized administration of Windows-based systems and establishes a scalable directory structure for future infrastructure growth.
+DC-01 is the central Windows administration point for the current Phase 1 environment.
 
 ---
 
 ### DNS
 
-An Active Directory-integrated DNS service was deployed alongside AD DS.
+Active Directory Integrated DNS was deployed with AD DS.
 
 DNS responsibilities include:
 
@@ -65,9 +65,9 @@ DNS responsibilities include:
 - Domain controller service location
 - Active Directory service discovery
 - Dynamic DNS record registration
-- Forward and reverse lookup zone management
+- Forward lookup zone management
 
-The DNS service enables domain-joined systems to locate authentication services, directory resources, and domain controllers required for normal domain operations.
+Domain-joined systems use DC-01 as their DNS server so they can locate domain services correctly.
 
 ### Evidence
 
@@ -79,15 +79,15 @@ The DNS service enables domain-joined systems to locate authentication services,
 
 ### Domain Structure
 
-A single-forest, single-domain Active Directory environment was deployed using the following configuration.
+A single-forest, single-domain Active Directory environment was deployed.
 
 | Property | Value |
-|-----------|---------|
+|----------|-------|
 | Forest Root Domain | primesec.local |
 | Domain Type | Single Forest, Single Domain |
 | NetBIOS Name | PRIMESEC |
 
-This design reflects a realistic small-to-medium business environment while maintaining simplicity, manageability, and clear administrative boundaries.
+This keeps the domain structure simple and appropriate for the current lab scope.
 
 ### Evidence
 
@@ -97,7 +97,7 @@ This design reflects a realistic small-to-medium business environment while main
 
 ### Organizational Unit Hierarchy
 
-The Active Directory structure was designed to logically separate administrative accounts, users, groups, servers, and workstations.
+The Active Directory structure separates administrative accounts, groups, servers, users, and workstations.
 
 ```text
 PRIMESEC
@@ -112,8 +112,8 @@ This hierarchy supports:
 
 - Targeted Group Policy deployment
 - Logical object organization
-- Simplified administration
-- Future infrastructure expansion
+- Simpler administration
+- Room for additional systems later
 
 ### Evidence
 
@@ -121,42 +121,65 @@ This hierarchy supports:
 
 ---
 
-### Administrative Separation
+## Group Policy
 
-Administrative and standard user accounts are separated through dedicated Organizational Units.
+Group Policy was implemented to manage domain and workstation configuration.
 
-This approach provides:
+Implemented policies include:
 
-- Clear administrative boundaries
-- Simplified privilege management
-- More precise policy targeting
-- Improved operational consistency
+- GPO-Domain-Password-Policy
+- GPO-Interactive-Logon-Notice
+- GPO-Workstation-Security-Baseline
+- GPO-Workstation-Windows-Update
 
-The design aligns with common enterprise administration practices and provides a foundation for future role-based access control implementations.
+Exported reports are stored under:
 
----
+```text
+reports/gpo/
+```
 
-### Scalability Considerations
-
-The directory structure was intentionally designed to support future infrastructure growth without requiring significant redesign.
-
-Potential future expansion includes:
-
-- Additional member servers
-- Additional domain workstations
-- Department-based Organizational Units
-- Additional security groups
-- Expanded Group Policy deployment
-- File services and shared resources
-
-The current hierarchy provides a scalable foundation while remaining appropriate for a small infrastructure environment.
+Group Policy application is validated on WS-01 using GPResult evidence.
 
 ---
 
-## Design Summary
+## Relationship with Other Systems
 
-The deployment of DC-01 establishes the central identity and management platform for the PrimeSec Infrastructure environment.
+### FW-01
 
-By combining Active Directory Domain Services, integrated DNS, Organizational Unit design, and centralized policy management, the environment provides a scalable foundation for workstation administration, security enforcement, and future infrastructure expansion.
+FW-01 provides the default gateway, NAT, DHCP, firewalling, and remote administration path.
 
-The implementation demonstrates practical enterprise infrastructure concepts including identity management, directory services, DNS integration, Group Policy administration, security baseline enforcement, and centralized Windows administration.
+DC-01 uses the internal network behind FW-01.
+
+### WS-01
+
+WS-01 is joined to the `primesec.local` domain.
+
+It uses DC-01 for:
+
+- Domain authentication
+- DNS resolution for the AD domain
+- Group Policy processing
+
+### WEB-01
+
+WEB-01 is a Linux server on the same internal network.
+
+Systems that need to resolve internal `primesec.local` records should use DC-01 as the internal DNS authority.
+
+---
+
+## Related Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Group Policy](group-policy.md) | Implemented GPOs and exported reports |
+| [Validation](validation.md) | Active Directory, DNS, and Group Policy validation |
+| [DNS Configuration](../networking/dns.md) | DNS responsibility model |
+
+---
+
+## Summary
+
+DC-01 provides the Windows domain services for the Phase 1 environment.
+
+It hosts the `primesec.local` Active Directory domain, provides integrated DNS, manages Group Policy, and supports the domain-joined workstation WS-01.
