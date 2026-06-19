@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document records the validation procedures performed on FW-01 to verify core networking, name resolution, and remote administration functionality.
+This document records the validation procedures performed on FW-01 to verify core networking, DHCP, name resolution, and remote administration functionality.
 
 The objective of these tests is to confirm that FW-01 is operating correctly as the firewall, gateway, NAT device, DHCP owner, and secure remote administration entry point for the PrimeSec Infrastructure environment.
 
@@ -84,6 +84,38 @@ This confirms that FW-01 can perform external DNS lookups required for normal ne
 
 ---
 
+## DHCP Validation
+
+### Objective
+
+Verify that FW-01 provides DHCP services for the internal LAN network and that a client system can receive a dynamic lease.
+
+### Validation Results
+
+The validation completed successfully.
+
+Confirmed DHCP information:
+
+| Item                  | Verified Value              |
+| --------------------- | --------------------------- |
+| DHCP Owner            | FW-01                       |
+| Interface             | LAN                         |
+| DHCP Scope Range      | 10.10.10.100 - 10.10.10.199 |
+| Observed Client Lease | WS-01                       |
+| WS-01 Lease Address   | 10.10.10.152                |
+| Lease Type            | Dynamic                     |
+| Hostname Shown        | WS-01                       |
+
+This confirms that FW-01 is providing DHCP leases on the LAN interface and that WS-01 successfully received a dynamic address from the configured DHCP range.
+
+### Evidence
+
+![DHCP Range Validation](../../assets/fw-01/dhcp-ranges.png)
+
+![DHCP Lease Validation](../../assets/fw-01/dhcp-leases.png)
+
+---
+
 ## Remote Administration Validation
 
 ### Objective
@@ -119,10 +151,11 @@ This confirms that remote administration functionality is operational and aligns
 
 ## Validation Summary
 
-| Validation | Status |
-|------------|--------|
+| Validation            | Status |
+| --------------------- | ------ |
 | Internet Connectivity | Passed |
-| DNS Resolution | Passed |
+| DNS Resolution        | Passed |
+| DHCP                  | Passed |
 | Remote Administration | Passed |
 
 ---
@@ -135,12 +168,13 @@ It does not make FW-01 the authoritative DNS server for the Active Directory dom
 
 The final internal DNS model is:
 
-| Function | System |
-|----------|--------|
-| Active Directory DNS authority | DC-01 / 10.10.10.10 |
-| Internal AD namespace | primesec.local |
-| Default gateway | FW-01 / 10.10.10.1 |
-| DHCP ownership | FW-01 |
+| Function                       | System                      |
+| ------------------------------ | --------------------------- |
+| Active Directory DNS authority | DC-01 / 10.10.10.10         |
+| Internal AD namespace          | primesec.local              |
+| Default gateway                | FW-01 / 10.10.10.1          |
+| DHCP ownership                 | FW-01                       |
+| DHCP scope range               | 10.10.10.100 - 10.10.10.199 |
 
 FW-01 may provide upstream or external DNS forwarding for non-domain or network-level services, but DC-01 remains authoritative for the `primesec.local` Active Directory domain.
 
@@ -154,6 +188,8 @@ The results confirm:
 
 - Operational Internet connectivity
 - Functional external DNS resolution
+- DHCP service operation on the LAN interface
+- Successful dynamic lease assignment to WS-01
 - Secure remote administration through Tailscale
 
 These validation activities demonstrate that FW-01 is functioning as the foundational networking and security component of the PrimeSec Infrastructure environment.
