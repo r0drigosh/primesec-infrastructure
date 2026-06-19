@@ -4,48 +4,41 @@
 
 FW-01 is the primary network gateway and security boundary of the PrimeSec Infrastructure environment.
 
-It is responsible for routing traffic between internal and external networks while providing core network services required by all systems within the infrastructure.
+It is responsible for routing traffic between the internal infrastructure network and upstream connectivity while providing core network services required by the lab environment.
 
-The system was designed to simulate the role of a dedicated firewall appliance commonly deployed in small and medium-sized business environments, providing practical experience in networking, systems administration and infrastructure security.
+FW-01 simulates the role of a dedicated firewall appliance commonly deployed in small and medium-sized environments. It provides practical experience in firewall administration, routing, NAT, DHCP, remote access, and infrastructure security.
 
 ---
 
 ## Platform Information
 
 | Property | Value |
-|-----------|---------|
+|----------|-------|
 | Hostname | FW-01 |
 | Platform | OPNsense |
 | Virtualization Platform | Proxmox VE |
 | Start at Boot | Enabled |
 
-### Virtualization
-
-FW-01 operates as a dedicated virtual firewall appliance hosted on Proxmox VE.
-
-The virtualized deployment provides flexibility, simplified management and an environment suitable for infrastructure testing, documentation and administration.
-
 ---
 
 ## Infrastructure Role
 
-FW-01 serves as the central networking component of the PrimeSec Infrastructure environment.
+FW-01 serves as the central networking component of PrimeSec Infrastructure.
 
-All internal systems depend on FW-01 for connectivity, routing and access to external resources.
+Current infrastructure systems relying on FW-01 include:
 
-Current infrastructure dependencies include:
-
-- WEB-01 (Ubuntu Server)
-- DC-01 (Windows Server) *(planned)*
-- WS-01 (Windows Workstation) *(planned)*
+- DC-01 — Windows Server Domain Controller
+- WS-01 — Windows domain-joined workstation
+- WEB-01 — Ubuntu Server with Apache HTTP Server
 
 Without FW-01, infrastructure systems would lose:
 
+- Default gateway access
 - Internet connectivity
-- Internal routing
+- NAT
 - DHCP services
-- Network security controls
-- Secure remote administration
+- Firewall policy enforcement
+- Secure remote administration through Tailscale
 
 ---
 
@@ -54,11 +47,11 @@ Without FW-01, infrastructure systems would lose:
 FW-01 is configured with two network interfaces.
 
 | Interface | Purpose |
-|------------|---------|
-| WAN | External network connectivity |
+|-----------|---------|
+| WAN | External or upstream network connectivity |
 | LAN | Internal infrastructure network |
 
-The LAN interface acts as the default gateway for all infrastructure systems.
+The LAN interface acts as the default gateway for infrastructure systems.
 
 ### Internal Network
 
@@ -72,7 +65,7 @@ The LAN interface acts as the default gateway for all infrastructure systems.
 10.10.10.1
 ```
 
-This design provides a simple and maintainable network architecture while maintaining separation between internal resources and external networks.
+This design provides a simple and maintainable network architecture while keeping internal resources behind a dedicated firewall layer.
 
 ---
 
@@ -82,60 +75,95 @@ FW-01 provides several foundational infrastructure services.
 
 ### Routing
 
-Routes traffic between internal and external networks.
+FW-01 routes traffic between the internal infrastructure network and upstream connectivity.
 
-### Network Address Translation (NAT)
+### Network Address Translation
 
-Allows internal systems using private IP addressing to access external resources.
+FW-01 provides NAT so systems using private internal addressing can access external resources.
 
 ### DHCP
 
-Provides network configuration services for infrastructure devices when required.
+FW-01 owns DHCP for the internal infrastructure network.
+
+DHCP should provide clients with:
+
+| Setting | Value |
+|---------|-------|
+| Default Gateway | 10.10.10.1 |
+| DNS Server | 10.10.10.10 |
+| Domain/Search Suffix | primesec.local |
+| DHCP Scope Range | 10.10.10.100 - 10.10.10.199 |
+
+The exact DHCP range is not verified in the current repository sources.
 
 ### Firewall Services
 
-Enforces network security policies and traffic filtering.
-
-### Infrastructure Gateway
-
-Acts as the default gateway for all connected systems.
+FW-01 enforces traffic filtering and network security controls between internal systems and upstream connectivity.
 
 ### Secure Remote Administration
 
-Supports secure administrative access through Tailscale integration.
+FW-01 supports secure remote administration through Tailscale.
 
-Additional implementation details are documented within the dedicated FW-01 documentation set.
+This allows administrative access without exposing management services directly to the public Internet.
+
+---
+
+## DNS Role Clarification
+
+FW-01 is not the authoritative DNS server for the Active Directory domain.
+
+The final internal Active Directory namespace is:
+
+```text
+primesec.local
+```
+
+The authoritative internal DNS server for Active Directory and domain-joined systems is:
+
+```text
+DC-01 / 10.10.10.10
+```
+
+FW-01 may provide upstream or external DNS forwarding for non-domain or network-level services, but Active Directory DNS authority belongs to DC-01.
+
+Older references to `primesec.internal` or FW-01 as the primary internal AD DNS server should be treated as legacy lab naming.
 
 ---
 
 ## Infrastructure Dependencies
 
-FW-01 relies on the following components:
+FW-01 relies on the following components.
 
 ### Proxmox VE
 
-Provides virtualization resources and virtual networking.
+Provides:
+
+- Virtualization resources
+- Virtual networking
+- Virtual machine lifecycle management
 
 ### Upstream Network Connectivity
 
-Provides Internet access and external network reachability.
+Provides:
+
+- Internet access
+- External network reachability
+- Connectivity required for updates and external DNS testing
 
 ### Administrative Devices
 
-Authorized management devices used for infrastructure administration and maintenance.
-
-All remaining PrimeSec Infrastructure systems rely directly on FW-01 for communication and network services.
+Authorized administrative devices are used to manage FW-01 through approved access paths, including Tailscale-based remote administration.
 
 ---
 
 ## Related Documentation
 
 | Document | Description |
-|-----------|-------------|
-| hardening.md | Security controls and hardening measures applied to FW-01 |
-| tailscale.md | Remote administration architecture and VPN integration |
-| firewall-rules.md | Firewall policy documentation *(planned)* |
-| validation.md | Operational testing and validation procedures *(planned)* |
+|----------|-------------|
+| [Hardening](hardening.md) | Security controls and hardening measures applied to FW-01 |
+| [Tailscale Remote Access](tailscale.md) | Remote administration architecture and VPN integration |
+| [Validation](validation.md) | Operational testing and validation evidence |
+| [DNS Configuration](../networking/dns.md) | Final DNS and DHCP responsibility model |
 
 ---
 
@@ -143,14 +171,16 @@ All remaining PrimeSec Infrastructure systems rely directly on FW-01 for communi
 
 FW-01 demonstrates practical experience in:
 
-- Firewall Administration
-- Network Routing
-- TCP/IP Networking
-- Infrastructure Design
+- Firewall administration
+- Network routing
+- NAT
+- DHCP ownership
+- TCP/IP networking
+- Infrastructure design
 - Virtualization
-- Secure Remote Access
-- Security Hardening
-- Technical Documentation
-- Infrastructure Operations
+- Secure remote access
+- Security hardening
+- Technical documentation
+- Infrastructure validation
 
-FW-01 serves as the foundational infrastructure component of PrimeSec Infrastructure and provides the networking and security services required by all current and future Phase 1 systems.
+FW-01 provides the networking and security foundation required by the current Phase 1 PrimeSec Infrastructure environment.
