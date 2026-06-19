@@ -125,7 +125,24 @@ Logon banners help reinforce acceptable use expectations and provide notice that
 
 ### User Experience Validation
 
-![Interactive Logon Notice](../../assets/dc-01/interactive-logon-notice.png)
+![Interactive Logon Notice](../../assets/ws-01/interactive-logon-notice.png)
+
+---
+
+## Exported Policy Reports
+
+In addition to the implementation screenshots included throughout this document, Group Policy reports were exported directly from the Group Policy Management Console.
+
+These reports provide detailed configuration information for each deployed policy and serve as implementation evidence and configuration references for the environment.
+
+Available reports include:
+
+- [GPO-Domain-Password-Policy](../../reports/gpo/GPO-Domain-Password-Policy.html)
+- [GPO-Interactive-Logon-Notice](../../reports/gpo/GPO-Interactive-Logon-Notice.html)
+- [GPO-Workstation-Security-Baseline](../../reports/gpo/GPO-Workstation-Security-Baseline.html)
+- [GPO-Workstation-Windows-Update](../../reports/gpo/GPO-Workstation-Windows-Update.html)
+
+The exported reports provide a detailed view of policy scope, configuration settings, security filtering, and link assignments. They supplement the documentation by providing a reproducible reference for the deployed Group Policy configuration.
 
 ---
 

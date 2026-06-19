@@ -151,7 +151,7 @@ This validation demonstrates successful communication between Active Directory, 
 
 ### Evidence
 
-![Interactive Logon Notice](../../assets/dc-01/interactive-logon-notice.png)
+![Interactive Logon Notice](../../assets/ws-01/interactive-logon-notice.png)
 
 ---
 
