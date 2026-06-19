@@ -62,7 +62,7 @@ FW-01 was deployed as the central firewall, default gateway, NAT device, DHCP pr
 
 Using a dedicated firewall reflects common small-business and lab infrastructure design.
 
-FW-01 provides the network boundary between the internal infrastructure network and upstream connectivity. It also centralizes routing, NAT, firewall policy, and remote administration access.
+FW-01 provides the network boundary between the internal infrastructure network and upstream connectivity. It also centralizes routing, NAT, firewall policy, DHCP, and remote administration access.
 
 ### Current Responsibilities
 
@@ -166,7 +166,7 @@ This avoids unnecessary Windows DHCP complexity at this stage while still demons
 
 ### DHCP Client Configuration
 
-DHCP should provide the following values to clients:
+DHCP is configured to provide the following values to clients:
 
 | Setting | Value |
 |---------|-------|
@@ -175,7 +175,13 @@ DHCP should provide the following values to clients:
 | Domain/Search Suffix | primesec.local |
 | DHCP Scope Range | 10.10.10.100 - 10.10.10.199 |
 
-The exact DHCP scope range is not documented in the current repository sources and should not be invented.
+The repository includes validation evidence showing that WS-01 received a dynamic DHCP lease from FW-01.
+
+| Item | Verified Value |
+|------|----------------|
+| Client Hostname | WS-01 |
+| Lease Address | 10.10.10.152 |
+| Lease Type | Dynamic |
 
 ---
 
@@ -264,9 +270,9 @@ The repository includes technical documentation and screenshots to show that the
 
 Validation evidence exists for:
 
-- FW-01 connectivity, DNS, and remote administration
+- FW-01 connectivity, DNS, DHCP, and remote administration
 - DC-01 Active Directory, DNS, and Domain Controller health
-- WS-01 domain membership and Group Policy processing
+- WS-01 domain membership, Group Policy processing, and dynamic DHCP lease assignment
 - WEB-01 connectivity, DNS, Apache, firewall, service startup, and web page access
 
 ---
@@ -280,7 +286,7 @@ The existing architecture diagram files are retained temporarily:
 
 The diagram is pending update to fully reflect the completed DC-01 and WS-01 implementation.
 
-No diagram regeneration was performed during this documentation correction pass.
+No diagram regeneration was performed during this documentation update.
 
 ---
 

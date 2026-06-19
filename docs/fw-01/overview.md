@@ -85,7 +85,7 @@ FW-01 provides NAT so systems using private internal addressing can access exter
 
 FW-01 owns DHCP for the internal infrastructure network.
 
-DHCP should provide clients with:
+DHCP is configured to provide clients with:
 
 | Setting | Value |
 |---------|-------|
@@ -94,7 +94,13 @@ DHCP should provide clients with:
 | Domain/Search Suffix | primesec.local |
 | DHCP Scope Range | 10.10.10.100 - 10.10.10.199 |
 
-The exact DHCP range is not verified in the current repository sources.
+The repository includes validation evidence showing that WS-01 received a dynamic DHCP lease from FW-01.
+
+| Item | Verified Value |
+|------|----------------|
+| Client Hostname | WS-01 |
+| Lease Address | 10.10.10.152 |
+| Lease Type | Dynamic |
 
 ### Firewall Services
 
@@ -174,7 +180,7 @@ FW-01 demonstrates practical experience in:
 - Firewall administration
 - Network routing
 - NAT
-- DHCP ownership
+- DHCP ownership and validation
 - TCP/IP networking
 - Infrastructure design
 - Virtualization

@@ -31,11 +31,31 @@ WS-01 is responsible for:
 | Hostname | WS-01 |
 | Operating System | Windows 11 Enterprise |
 | Platform | Proxmox VE |
-| IP Address | 10.10.10.152 |
+| Current DHCP Lease Address | 10.10.10.152 |
+| Lease Type | Dynamic |
+| DHCP Provider | FW-01 |
 | Domain Membership | primesec.local |
 | Network | 10.10.10.0/24 |
 | Role | Domain-Joined Workstation |
 | Management Model | Active Directory & Group Policy |
+
+---
+
+## Network Configuration
+
+WS-01 currently receives its network configuration from FW-01 through DHCP.
+
+The observed DHCP lease is:
+
+| Item | Verified Value |
+|------|----------------|
+| DHCP Provider | FW-01 |
+| Client Hostname | WS-01 |
+| Lease Address | 10.10.10.152 |
+| Lease Type | Dynamic |
+| DHCP Scope Range | 10.10.10.100 - 10.10.10.199 |
+
+This address should be treated as the current observed DHCP lease, not as a manually assigned static workstation address.
 
 ---
 
@@ -119,6 +139,8 @@ Services provided by DC-01 include:
 - Group Policy deployment
 - Security policy enforcement
 
+WS-01 also relies on FW-01 for network access, including default gateway services and DHCP lease assignment.
+
 This relationship establishes DC-01 as the central management platform while positioning WS-01 as a managed endpoint that consumes those services.
 
 The architecture reflects a standard enterprise deployment model where workstations are centrally administered through Active Directory infrastructure.
@@ -136,6 +158,7 @@ The workstation provides a platform for:
 - Security policy verification
 - Endpoint management validation
 - Infrastructure integration testing
+- DHCP client validation
 
 Its deployment demonstrates how centralized identity and policy services extend from the domain controller to managed client systems.
 
@@ -164,8 +187,8 @@ This model improves operational consistency and supports scalable workstation ad
 
 WS-01 serves as the primary managed endpoint within the PrimeSec Infrastructure environment and demonstrates the practical application of centralized workstation administration.
 
-Through integration with Active Directory, DNS, and Group Policy, the workstation operates as part of a centrally managed domain infrastructure rather than as an independently administered system.
+Through integration with Active Directory, DNS, DHCP, and Group Policy, the workstation operates as part of a centrally managed domain infrastructure rather than as an independently administered system.
 
-The deployment demonstrates core enterprise administration concepts including domain membership, centralized authentication, policy-based management, endpoint standardization, and Active Directory integration.
+The deployment demonstrates core enterprise administration concepts including domain membership, centralized authentication, policy-based management, endpoint standardization, DHCP client operation, and Active Directory integration.
 
-Together with DC-01, WS-01 establishes a functional Windows domain environment that showcases realistic infrastructure administration practices and provides a foundation for future expansion of the PrimeSec Infrastructure project.
+Together with DC-01 and FW-01, WS-01 establishes a functional Windows domain environment that showcases realistic infrastructure administration practices and provides a foundation for future expansion of the PrimeSec Infrastructure project.

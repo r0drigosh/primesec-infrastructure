@@ -32,9 +32,9 @@ DC-01 provides Active Directory Integrated DNS for the internal domain.
 |----------|--------------------|-------|
 | Active Directory DNS | DC-01 | Authoritative for `primesec.local` |
 | Domain controller service discovery | DC-01 | Required for AD authentication and domain operations |
-| DNS for domain-joined systems | DC-01 / 10.10.10.10 | Domain-joined systems should use DC-01 as DNS |
+| DNS for domain-joined systems | DC-01 / 10.10.10.10 | Domain-joined systems use DC-01 as DNS |
 | Default gateway | FW-01 / 10.10.10.1 | FW-01 remains the internal network gateway |
-| DHCP | FW-01 | DHCP should hand out DC-01 as DNS |
+| DHCP | FW-01 | DHCP is configured to hand out DC-01 as DNS |
 | Upstream or external DNS forwarding for non-domain or network-level services | FW-01 | FW-01 may provide forwarding, but is not authoritative for AD DNS |
 
 ---
@@ -64,7 +64,7 @@ The repository includes validation evidence showing that Active Directory Integr
 
 FW-01 owns DHCP for the internal infrastructure network.
 
-DHCP should provide the following client settings:
+DHCP is configured to provide the following client settings:
 
 | DHCP Option | Value |
 |-------------|-------|
@@ -73,7 +73,13 @@ DHCP should provide the following client settings:
 | Domain/Search Suffix | primesec.local |
 | DHCP Scope Range | 10.10.10.100 - 10.10.10.199 |
 
-The exact DHCP range is not verified in the current repository sources and should not be invented.
+The repository includes DHCP validation evidence showing that WS-01 received a dynamic lease from FW-01.
+
+| Item | Verified Value |
+|------|----------------|
+| Client Hostname | WS-01 |
+| Lease Address | 10.10.10.152 |
+| Lease Type | Dynamic |
 
 ---
 
@@ -87,7 +93,7 @@ FW-01 may still provide upstream or external DNS forwarding for non-domain syste
 
 This separation keeps responsibilities clear:
 
-- FW-01 handles network edge and routing services.
+- FW-01 handles network edge, routing, DHCP, NAT, firewall, and remote access services.
 - DC-01 handles Active Directory and internal domain name resolution.
 
 ---
@@ -113,6 +119,12 @@ Using an external DNS resolver or FW-01 as the primary DNS server for domain-joi
 WS-01 is documented as a domain-joined workstation in the `primesec.local` domain.
 
 The workstation validation evidence confirms successful domain membership and Group Policy processing, which depends on functional communication with Active Directory and DNS services.
+
+WS-01 currently holds a dynamic DHCP lease from FW-01:
+
+```text
+10.10.10.152
+```
 
 ### Evidence
 
@@ -176,19 +188,20 @@ When troubleshooting DNS in this environment, verify the following:
 5. DC-01 DNS service is operational.
 6. The `primesec.local` forward lookup zone exists.
 7. Active Directory service records are present.
-8. FW-01 routing and firewall policies allow required internal communication.
+8. FW-01 DHCP provides the correct gateway, DNS server, and domain/search suffix.
+9. FW-01 routing and firewall policies allow required internal communication.
 
 ---
 
 ## Validation Summary
 
-The repository contains DNS-related validation evidence for:
+The repository contains DNS and DHCP-related validation evidence for:
 
 | System | Evidence |
 |--------|----------|
 | DC-01 | Active Directory Integrated DNS and forward lookup zone |
-| FW-01 | External DNS resolution from the firewall |
+| FW-01 | External DNS resolution and DHCP service validation |
 | WEB-01 | External DNS resolution from the Linux server |
-| WS-01 | Domain membership and Group Policy processing |
+| WS-01 | Domain membership, Group Policy processing, and dynamic DHCP lease assignment |
 
 Together, these validation points support the corrected DNS model where DC-01 is authoritative for Active Directory DNS and FW-01 remains responsible for gateway, DHCP, firewall, NAT, and secure remote access functions.
