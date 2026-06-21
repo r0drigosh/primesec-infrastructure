@@ -2,42 +2,77 @@
 
 ## Purpose
 
-This document records the validation procedures performed on WEB-01 to verify network connectivity, DNS functionality, service availability, firewall configuration and web service accessibility.
+This document records validation evidence for `WEB-01`.
 
-The objective of these tests is to confirm that WEB-01 is operating correctly as the Linux web server component of the PrimeSec Infrastructure environment.
-
-Only completed validation procedures are documented within this file.
+Validation covers host identity, external connectivity, DNS resolution, Apache service state, `UFW` firewall policy, service startup, and web page access.
 
 ---
 
-## Network Connectivity Validation
+## Validation Summary
+
+| Check | Result |
+| --- | --- |
+| Host identity | Passed |
+| External connectivity | Passed |
+| DNS resolution | Passed |
+| Apache service status | Passed |
+| Firewall configuration | Passed |
+| Service startup configuration | Passed |
+| Website access | Passed |
+
+---
+
+## Host Identity Validation
 
 ### Objective
 
-Verify that WEB-01 can successfully communicate with external network destinations through FW-01.
+Verify the operating system and visible hostname for `WEB-01`.
 
 ### Procedure
 
-The following command was executed:
+```bash
+hostnamectl
+```
+
+### Result
+
+The evidence shows:
+
+- Static hostname: `web-01`
+- Operating system: Ubuntu `24.04.4 LTS`
+- Kernel: Linux `6.8.0-124-generic`
+- Virtualization: `kvm`
+- Hardware vendor: QEMU
+
+Public documentation uses the component name `WEB-01`.
+
+### Evidence
+
+![Hostname Validation](../../assets/web-01/hostname-validation.png)
+
+---
+
+## External Connectivity Validation
+
+### Objective
+
+Verify that `WEB-01` can reach an external network destination through the configured network path.
+
+### Procedure
 
 ```bash
 ping -c 4 1.1.1.1
 ```
 
-The test targeted Cloudflare's public DNS service to validate outbound network connectivity.
+### Result
 
-### Validation Results
+The ping test completed successfully.
 
-The validation completed successfully.
+Recorded output:
 
-Observed results:
-
-- 4 packets transmitted
-- 4 packets received
-- 0% packet loss
-- Successful round-trip communication
-
-This confirms that WEB-01 can successfully reach external network resources through the configured gateway.
+- `4` packets transmitted
+- `4` packets received
+- `0%` packet loss
 
 ### Evidence
 
@@ -49,29 +84,27 @@ This confirms that WEB-01 can successfully reach external network resources thro
 
 ### Objective
 
-Verify that WEB-01 can successfully resolve external domain names using the configured DNS infrastructure.
+Verify that `WEB-01` can resolve external domain names.
 
 ### Procedure
-
-The following command was executed:
 
 ```bash
 dig google.com
 ```
 
-The test validated successful DNS query processing and hostname resolution.
+### Result
 
-### Validation Results
+The DNS query completed successfully.
 
-The validation completed successfully.
+Recorded output:
 
-Observed results:
-
-- DNS query returned successfully
-- A record was resolved
 - Query status returned `NOERROR`
+- An `A` record response was returned for `google.com`
+- Resolver shown in the output is `127.0.0.53#53`
 
-This confirms that WEB-01 can perform DNS lookups required for normal operating system and application functionality.
+This validates DNS resolution from `WEB-01`.
+
+It does not, by itself, prove that `WEB-01` is querying `DC-01` / `10.10.10.10` directly, because the screenshot shows the local system resolver stub.
 
 ### Evidence
 
@@ -83,30 +116,25 @@ This confirms that WEB-01 can perform DNS lookups required for normal operating 
 
 ### Objective
 
-Verify that the Apache HTTP Server service is installed, running and operational.
+Verify that Apache HTTP Server is running on `WEB-01`.
 
 ### Procedure
-
-The following command was executed:
 
 ```bash
 systemctl status apache2
 ```
 
-The service status output was reviewed to confirm operational state.
+### Result
 
-### Validation Results
+The Apache service is loaded and active.
 
-The validation completed successfully.
+Recorded output:
 
-Observed results:
-
-- Apache service loaded successfully
-- Apache service active and running
-- Service startup completed successfully
-- Apache process operational
-
-This confirms that the web service is functioning correctly and available to serve web content.
+- Service: `apache2.service`
+- Description: The Apache HTTP Server
+- Loaded state: `loaded`
+- Startup state: `enabled`
+- Active state: `active (running)`
 
 ### Evidence
 
@@ -118,31 +146,35 @@ This confirms that the web service is functioning correctly and available to ser
 
 ### Objective
 
-Verify that the host-based firewall is enabled and enforcing the intended security policy.
+Verify that `UFW` is enabled and enforcing the documented host firewall policy.
 
 ### Procedure
-
-The following command was executed:
 
 ```bash
 sudo ufw status verbose
 ```
 
-Firewall configuration and active rules were reviewed.
+### Result
 
-### Validation Results
+The evidence shows `UFW` active with the following policy:
 
-The validation completed successfully.
+| Firewall Setting | Value |
+| --- | --- |
+| Status | Active |
+| Logging | On, low |
+| Default incoming policy | Deny |
+| Default outgoing policy | Allow |
+| Default routed policy | Disabled |
+| New profiles | Skip |
 
-Observed results:
+Allowed inbound rules:
 
-- UFW active
-- Default incoming policy set to deny
-- Default outgoing policy set to allow
-- SSH (22/TCP) permitted
-- HTTP (80/TCP) permitted
-
-This confirms that the firewall is operational and configured according to the documented security baseline.
+| Rule | Action |
+| --- | --- |
+| `22/tcp` / OpenSSH | Allow in |
+| `80/tcp` | Allow in |
+| `22/tcp` / OpenSSH IPv6 | Allow in |
+| `80/tcp` IPv6 | Allow in |
 
 ### Evidence
 
@@ -154,32 +186,24 @@ This confirms that the firewall is operational and configured according to the d
 
 ### Objective
 
-Verify that critical infrastructure services automatically start during system boot.
+Verify that Apache and `UFW` are enabled to start automatically.
 
 ### Procedure
 
-The following commands were executed:
-
 ```bash
 systemctl is-enabled apache2
-```
-
-```bash
 systemctl is-enabled ufw
 ```
 
-Service startup configuration was reviewed for both Apache and UFW.
+### Result
 
-### Validation Results
+Both services returned:
 
-The validation completed successfully.
+```text
+enabled
+```
 
-Observed results:
-
-- Apache service enabled
-- UFW service enabled
-
-This confirms that required services will automatically start following system reboots.
+This confirms that Apache and `UFW` are enabled at startup.
 
 ### Evidence
 
@@ -191,26 +215,26 @@ This confirms that required services will automatically start following system r
 
 ### Objective
 
-Verify that the Apache web service is accessible from the network and successfully serves the deployed landing page.
+Verify that the Apache web page is reachable through the documented internal URL.
 
 ### Procedure
 
-The web service hosted on WEB-01 was accessed using a web browser from the internal network.
+The web service was accessed from a browser using:
 
-The hosted landing page was reviewed to confirm successful page delivery and service availability.
+`http://10.10.10.11`
 
-### Validation Results
+### Result
 
-The validation completed successfully.
+The page loaded successfully.
 
-Observed results:
+The visible page content confirms:
 
-- Web page loaded successfully
-- Apache service responding correctly
-- Custom landing page displayed
-- Infrastructure information presented as expected
-
-This confirms that WEB-01 is successfully providing web services to clients on the network.
+- Project name: PrimeSec Infrastructure
+- Component: `WEB-01`
+- Operating system: Ubuntu Server `24.04.4 LTS`
+- Service: Apache HTTP Server
+- Status: Operational
+- Role: Internal Web Server
 
 ### Evidence
 
@@ -218,23 +242,17 @@ This confirms that WEB-01 is successfully providing web services to clients on t
 
 ---
 
-## Validation Summary
-
-| Validation | Status |
-|------------|---------|
-| Network Connectivity | Passed |
-| DNS Resolution | Passed |
-| Apache Service | Passed |
-| Firewall Configuration | Passed |
-| Service Startup Configuration | Passed |
-| Website Access | Passed |
-
----
-
 ## Conclusion
 
-All planned validation procedures for WEB-01 were completed successfully.
+`WEB-01` is validated as an internal Ubuntu Server web component running Apache HTTP Server.
 
-Testing confirmed that the server can communicate with external networks, resolve DNS queries, operate the Apache HTTP service, enforce host-based firewall policies, automatically start required services during system boot and successfully deliver hosted web content.
+The available evidence confirms:
 
-Based on the completed validation activities, WEB-01 is operating as intended and fulfills its role as the Linux web server component of the PrimeSec Infrastructure Phase 1 environment.
+- Host identity as `web-01`
+- Ubuntu Server `24.04.4 LTS`
+- External connectivity
+- DNS resolution
+- Apache active/running and enabled
+- `UFW` active with documented rules for SSH and HTTP
+- Apache and `UFW` enabled at startup
+- Web page access at `http://10.10.10.11`

@@ -1,170 +1,122 @@
 # WEB-01 Hardening
 
-## System Updates
+## Purpose
 
-### Configuration
+This document records the implemented hardening controls for `WEB-01`.
 
-The operating system was fully updated following deployment using the Ubuntu package management system.
-
-Security updates and package updates were applied to ensure the server was operating with the latest available fixes and security patches.
-
-### Purpose
-
-Maintaining current software versions reduces exposure to known vulnerabilities and improves overall system stability.
-
-Regular patching is a fundamental security practice for Linux server administration and helps minimize the attack surface presented by outdated software.
+The scope is limited to the current Ubuntu Server, Apache HTTP Server, `UFW`, SSH exposure, and service startup configuration.
 
 ---
 
-## Host-Based Firewall (UFW)
+## Hardening Summary
 
-### Configuration
-
-Uncomplicated Firewall (UFW) was enabled and configured as the host-based firewall for WEB-01.
-
-The firewall service was enabled and configured to start automatically during system boot.
-
-### Evidence
-
-![Firewall Validation](../../assets/web-01/firewall-validation.png)
-
-### Purpose
-
-A host-based firewall provides an additional security layer by controlling network traffic directly at the operating system level.
-
-This reduces unnecessary exposure and ensures that only required services are accessible.
+| Area | Implemented State |
+| --- | --- |
+| Host firewall | `UFW` active |
+| Default incoming policy | Deny |
+| Default outgoing policy | Allow |
+| SSH access | Allowed on `22/tcp` |
+| HTTP access | Allowed on `80/tcp` |
+| Apache service | Active/running |
+| Apache startup | Enabled |
+| `UFW` startup | Enabled |
 
 ---
 
-## Firewall Policy
+## Apache HTTP Server
 
-### Configuration
+Apache HTTP Server runs on `WEB-01` and serves the internal web page at:
 
-The following firewall policy was implemented:
+`http://10.10.10.11`
 
-| Policy | Configuration |
-|----------|---------------|
-| Incoming Traffic | Deny by Default |
-| Outgoing Traffic | Allow by Default |
+Validated Apache state:
 
-Permitted services:
+- Service loaded successfully
+- Service active/running
+- Service enabled at startup
+- Web page reachable from the internal environment
+
+Apache is used only for the internal HTTP service documented in this repository.
+
+---
+
+## Host Firewall
+
+`WEB-01` uses `UFW` as its host-based firewall.
+
+The validated firewall policy is:
+
+| Firewall Setting | Value |
+| --- | --- |
+| Status | Active |
+| Logging | On, low |
+| Default incoming policy | Deny |
+| Default outgoing policy | Allow |
+| Default routed policy | Disabled |
+| New profiles | Skip |
+
+Allowed inbound services:
 
 | Service | Port |
-|----------|------|
-| SSH | 22/TCP |
-| HTTP | 80/TCP |
+| --- | --- |
+| OpenSSH | `22/tcp` |
+| HTTP | `80/tcp` |
 
-No additional inbound services were permitted.
-
-### Purpose
-
-A default-deny approach limits exposure by blocking unsolicited inbound connections unless explicitly authorized.
-
-Only services required for administration and web hosting were permitted, reducing the server's attack surface.
+The firewall evidence also shows IPv6 allow rules for `22/tcp` and `80/tcp`.
 
 ---
 
-## SSH Configuration
+## SSH Exposure
 
-### Configuration
+SSH is allowed through `UFW` for administrative access to `WEB-01`.
 
-SSH was enabled to support remote administration.
+The documented exposed administration port is:
 
-Administrative access is performed through OpenSSH and restricted to authorized users.
+`22/tcp`
 
-Root SSH login was disabled as part of the server hardening process.
-
-### Purpose
-
-SSH provides secure remote administration capabilities while eliminating the need for direct console access.
-
-Disabling root SSH login reduces the risk associated with privileged account targeting and aligns with common Linux security practices.
+No additional remote administration services are documented for this component.
 
 ---
 
-## Root Account Protection
+## Service Startup
 
-### Configuration
+Apache and `UFW` are enabled to start automatically with the system.
 
-The local root account was locked.
+Validated startup checks:
 
-Direct root SSH authentication was disabled.
+- `systemctl is-enabled apache2`
+- `systemctl is-enabled ufw`
 
-Administrative tasks are performed through authorized user accounts with elevated privileges when required.
-
-### Purpose
-
-Restricting direct root access reduces the likelihood of unauthorized privileged access and improves accountability by ensuring administrative actions are performed through individual user accounts.
-
-This approach follows the principle of least privilege and supports secure administrative operations.
+Both services returned `enabled` in the available evidence.
 
 ---
 
-## Service Minimization
+## Network Placement
 
-### Configuration
+`WEB-01` is placed on the internal infrastructure network.
 
-Only services required for the intended role of the server were deployed and enabled.
+| Setting | Value |
+| --- | --- |
+| Internal IP address | `10.10.10.11` |
+| Internal network | `10.10.10.0/24` |
+| Default gateway | `FW-01` / `10.10.10.1` |
+| Internal DNS authority | `DC-01` / `10.10.10.10` |
+| DNS namespace | `primesec.local` |
 
-Active infrastructure services include:
-
-- OpenSSH Server
-- Apache HTTP Server
-- UFW Firewall
-
-No unnecessary infrastructure services were installed or exposed.
-
-### Purpose
-
-Reducing the number of installed and running services decreases the system attack surface and lowers operational complexity.
-
-Service minimization is a core hardening practice that helps reduce potential entry points for attackers.
+This keeps the web service reachable as a predictable internal endpoint.
 
 ---
 
-## Automatic Security Updates
+## Evidence Reference
 
-### Configuration
+Validation evidence is documented in [WEB-01 Validation](validation.md).
 
-Automatic security updates were enabled using the Ubuntu unattended-upgrades mechanism.
+The evidence covers:
 
-The system is configured to automatically install applicable security updates released through the Ubuntu repositories.
-
-### Purpose
-
-Automatic security updates help ensure that critical security patches are applied in a timely manner and reduce the operational overhead associated with manual patch management.
-
-This improves long-term system security and helps maintain a consistent security baseline.
-
----
-
-## Security Benefits
-
-The hardening measures implemented on WEB-01 provide several security benefits:
-
-- Reduced attack surface through service minimization
-- Protection against unsolicited inbound connections
-- Secure remote administration practices
-- Elimination of direct root access
-- Improved patch management
-- Consistent firewall enforcement
-- Reduced exposure to known vulnerabilities
-- Improved operational security posture
-
-These controls establish a practical baseline security configuration suitable for a Linux server operating within the PrimeSec Infrastructure environment.
-
----
-
-## Future Improvements
-
-The following enhancements may be considered in future project phases:
-
-- SSH key-based authentication
-- Apache hardening controls
-- Intrusion detection and monitoring
-- Centralized log collection
-- HTTPS implementation
-- Security auditing and compliance validation
-- Vulnerability scanning integration
-
-These items fall outside the scope of the current Phase 1 implementation and are documented as potential future enhancements rather than completed controls.
+- Host identity
+- Apache service status
+- Apache and `UFW` startup state
+- `UFW` firewall policy
+- External connectivity
+- DNS resolution
+- Web page access

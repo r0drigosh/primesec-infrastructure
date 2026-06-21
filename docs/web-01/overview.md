@@ -2,27 +2,28 @@
 
 ## Purpose
 
-`WEB-01` is the internal Linux web server for the PrimeSec Infrastructure environment.
+`WEB-01` is the internal Ubuntu Server web component for the PrimeSec Infrastructure environment.
 
-It runs Ubuntu Server 24.04.4 LTS and Apache HTTP Server, using a static IP address on the internal network.
+It runs Apache HTTP Server and provides a simple internal web endpoint for service, firewall, DNS, and connectivity validation.
 
 ---
 
 ## Environment Role
 
-`WEB-01` provides a simple internal HTTP service behind `FW-01`.
+`WEB-01` hosts an internal HTTP service behind `FW-01`.
 
-The server supports internal web access, static addressing, service availability checks, host-based firewall policy, and DNS validation from the infrastructure network.
+The server is intentionally lightweight. Its role is to provide a predictable Linux-based web service inside the infrastructure network, not to act as a public web application platform.
 
 ---
 
 ## System Summary
 
 | Property | Value |
-| -------- | -------- |
+| --- | --- |
 | Component | `WEB-01` |
-| Operating System | Ubuntu Server 24.04.4 LTS |
-| Virtualization Platform | Proxmox VE |
+| Operating system | Ubuntu Server `24.04.4 LTS` |
+| Virtualization platform | Proxmox VE |
+| Web service | Apache HTTP Server |
 | Role | Internal Linux web server |
 
 ---
@@ -30,13 +31,14 @@ The server supports internal web access, static addressing, service availability
 ## Network Summary
 
 | Property | Value |
-| -------- | -------- |
-| Network | `10.10.10.0/24` |
-| Static IP Address | `10.10.10.11` |
-| Default Gateway | `FW-01` / `10.10.10.1` |
-| Internal DNS Authority | `DC-01` / `10.10.10.10` |
+| --- | --- |
+| Internal network | `10.10.10.0/24` |
+| Static IP address | `10.10.10.11` |
+| Default gateway | `FW-01` / `10.10.10.1` |
+| Internal DNS authority | `DC-01` / `10.10.10.10` |
+| DNS namespace | `primesec.local` |
 
-`WEB-01` is published internally through Apache HTTP Server and protected locally with UFW.
+`WEB-01` is documented as an internal service on the PrimeSec infrastructure network.
 
 ---
 
@@ -46,39 +48,40 @@ The server supports internal web access, static addressing, service availability
 
 `WEB-01` hosts a lightweight Apache landing page for internal service validation.
 
-The HTTP service is used to confirm that the server can deliver web content across the internal network.
+The documented web endpoint is:
 
-### Static Network Configuration
+`http://10.10.10.11`
+
+### Static Network Addressing
 
 `WEB-01` uses the static IP address `10.10.10.11`.
 
-This keeps the web service reachable through a predictable internal endpoint.
+This keeps the service reachable through a predictable internal endpoint.
 
-### Host-Based Firewall
+### Host Firewall
 
-UFW is enabled on `WEB-01`.
+`UFW` is enabled on `WEB-01`.
 
-The documented firewall policy permits required administration and web traffic while denying unsolicited inbound traffic by default.
+The firewall allows the documented administration and web service ports while denying unsolicited inbound traffic by default.
 
 ### Remote Administration
 
-SSH is enabled for remote administration of the Linux server.
+SSH access is allowed on `22/tcp` for server administration.
 
-### System Maintenance
+### Service Startup
 
-Automatic security updates are enabled using the Ubuntu unattended-upgrades mechanism.
+Apache and `UFW` are enabled to start automatically with the system.
 
 ---
 
 ## Related Documentation
 
 | Document | Purpose |
-| -------- | -------- |
-| [WEB-01 Deployment](web-01.md) | Deployment and configuration state |
-| [WEB-01 Hardening](hardening.md) | Linux hardening controls applied to WEB-01 |
-| [WEB-01 Design Decisions](design-decisions.md) | Design rationale for the WEB-01 implementation |
-| [DNS Configuration](../networking/dns.md) | DNS model used by the infrastructure |
-| [WEB-01 Validation](validation.md) | Validation evidence for network, service, firewall, and web access checks |
+| --- | --- |
+| [WEB-01 Hardening](hardening.md) | Operational hardening notes for Apache, `UFW`, SSH exposure, and service startup |
+| [WEB-01 Design Decisions](design-decisions.md) | Practical reasoning behind the WEB-01 implementation |
+| [WEB-01 Validation](validation.md) | Validation evidence for host identity, service state, firewall policy, DNS resolution, connectivity, and web access |
+| [DNS Configuration](../networking/dns.md) | DNS and DHCP responsibility model for the wider infrastructure |
 
 ---
 
@@ -88,9 +91,10 @@ Automatic security updates are enabled using the Ubuntu unattended-upgrades mech
 
 Validation covers:
 
-- Network connectivity through `FW-01`
+- Host identity
+- External network connectivity
 - DNS resolution
 - Apache service status
-- UFW firewall configuration
-- Service startup configuration
-- Website access from the internal network
+- `UFW` firewall policy
+- Apache and `UFW` startup state
+- Website access at `http://10.10.10.11`
