@@ -10,12 +10,12 @@ The environment includes an OPNsense firewall, a Windows Server domain controlle
 
 ## Implemented Environment
 
-| Component | Role                                        | Key Details                                                                             | Documentation                          |
+| Component | Role | Key Details | Documentation |
 | --- | --- | --- | --- |
-| FW-01     | Firewall, gateway, NAT, DHCP, remote access | OPNsense, LAN gateway `10.10.10.1`, DHCP scope `10.10.10.100 - 10.10.10.199`, Tailscale | [FW-01 Docs](docs/fw-01/overview.md)   |
-| DC-01     | Domain controller, DNS, Group Policy        | Windows Server 2022, AD DS, domain `primesec.local`, IP `10.10.10.10`                   | [DC-01 Docs](docs/dc-01/overview.md)   |
-| WS-01     | Managed Windows workstation                 | Windows 11 Pro, domain joined, DHCP lease `10.10.10.152`                                | [WS-01 Docs](docs/ws-01/overview.md)   |
-| WEB-01    | Internal Linux web server                   | Ubuntu Server 24.04.4 LTS, Apache HTTP Server, UFW, IP `10.10.10.11`                    | [WEB-01 Docs](docs/web-01/overview.md) |
+| FW-01 | Firewall, gateway, NAT, DHCP, remote access | OPNsense, LAN gateway `10.10.10.1`, DHCP scope `10.10.10.100 - 10.10.10.199`, Tailscale | [FW-01 Docs](docs/fw-01/overview.md) |
+| DC-01 | Domain controller, DNS, Group Policy | Windows Server 2022, AD DS, domain `primesec.local`, IP `10.10.10.10` | [DC-01 Docs](docs/dc-01/overview.md) |
+| WS-01 | Managed Windows workstation | Windows 11 Pro, domain joined, DHCP lease `10.10.10.152` | [WS-01 Docs](docs/ws-01/overview.md) |
+| WEB-01 | Internal Linux web server | Ubuntu Server 24.04.4 LTS, Apache HTTP Server, UFW, IP `10.10.10.11` | [WEB-01 Docs](docs/web-01/overview.md) |
 
 ---
 
@@ -31,26 +31,26 @@ The lab is deployed on Proxmox VE using an isolated internal network behind FW-0
 
 ## Network Summary
 
-| Item                    | Value                         |
+| Item | Value |
 | --- | --- |
-| Internal network        | `10.10.10.0/24`               |
-| Default gateway         | FW-01 / `10.10.10.1`          |
-| DHCP provider           | FW-01                         |
-| DHCP scope              | `10.10.10.100 - 10.10.10.199` |
-| Domain DNS authority    | DC-01 / `10.10.10.10`         |
-| Active Directory domain | `primesec.local`              |
-| Remote access           | Tailscale on FW-01            |
+| Internal network | `10.10.10.0/24` |
+| Default gateway | FW-01 / `10.10.10.1` |
+| DHCP provider | FW-01 |
+| DHCP scope | `10.10.10.100 - 10.10.10.199` |
+| Domain DNS authority | DC-01 / `10.10.10.10` |
+| Active Directory domain | `primesec.local` |
+| Remote access | Tailscale on FW-01 |
 
 ---
 
 ## Documentation
 
-| Area         | Links                                                                                                                                           |
+| Area | Links |
 | --- | --- |
-| Architecture | [Design Decisions](docs/architecture/design-decisions.md) · [Diagram Source](diagrams/architecture.drawio)                                      |
-| Components   | [FW-01](docs/fw-01/overview.md) · [DC-01](docs/dc-01/overview.md) · [WS-01](docs/ws-01/overview.md) · [WEB-01](docs/web-01/overview.md)         |
-| Validation   | [FW-01](docs/fw-01/validation.md) · [DC-01](docs/dc-01/validation.md) · [WS-01](docs/ws-01/validation.md) · [WEB-01](docs/web-01/validation.md) |
-| Reports      | [Group Policy Reports](reports/gpo/)                                                                                                            |
+| Architecture | [Design Decisions](docs/architecture/design-decisions.md) · [Diagram Source](diagrams/architecture.drawio) |
+| Components | [FW-01](docs/fw-01/overview.md) · [DC-01](docs/dc-01/overview.md) · [WS-01](docs/ws-01/overview.md) · [WEB-01](docs/web-01/overview.md) |
+| Validation | [FW-01](docs/fw-01/validation.md) · [DC-01](docs/dc-01/validation.md) · [WS-01](docs/ws-01/validation.md) · [WEB-01](docs/web-01/validation.md) |
+| Reports | [Group Policy Reports](reports/gpo/) |
 
 ---
 

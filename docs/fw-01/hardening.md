@@ -75,8 +75,6 @@ Management logging is enabled for:
 
 Logging supports troubleshooting, auditability, and investigation of firewall management activity.
 
-`FW-01` is documented as upgraded to OPNsense `26.1.9`.
-
 After firmware maintenance, Tailscale-related settings should be checked before relying on remote access.
 
 Recommended checks:

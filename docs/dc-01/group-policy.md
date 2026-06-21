@@ -19,10 +19,6 @@ Group Policy is separated between domain-level and workstation-level controls.
 
 This keeps identity-related settings at the domain level and endpoint configuration under the workstation OU.
 
-### Evidence
-
-![Group Policy Linking](../../assets/dc-01/gpo-linking.png)
-
 ---
 
 ## Implemented GPOs
@@ -52,10 +48,6 @@ This keeps identity-related settings at the domain level and endpoint configurat
 | Account lockout duration | `15 minutes` |
 | Reset account lockout counter | `15 minutes` |
 
-### Evidence
-
-![Domain Password Policy](../../assets/dc-01/gpo-password-policy.png)
-
 ---
 
 ## Interactive Logon Notice
@@ -66,10 +58,6 @@ This keeps identity-related settings at the domain level and endpoint configurat
 | --- | --- |
 | Message title | `PrimeSec Infrastructure` |
 | Message text | `Authorized Access Only. This workstation is managed by PrimeSec Infrastructure. Unauthorized use is prohibited and may be monitored.` |
-
-### Evidence
-
-![Interactive Logon Notice GPO](../../assets/dc-01/gpo-logon-notice.png)
 
 ---
 
@@ -85,10 +73,6 @@ This keeps identity-related settings at the domain level and endpoint configurat
 
 The Microsoft Defender setting means the GPO does not disable Microsoft Defender Antivirus.
 
-### Evidence
-
-![Workstation Security Baseline](../../assets/dc-01/gpo-security-baseline.png)
-
 ---
 
 ## Windows Update Policy
@@ -102,10 +86,6 @@ The Microsoft Defender setting means the GPO does not disable Microsoft Defender
 | Scheduled install day | `0 - Every day` |
 | Scheduled install time | `04:00` |
 | No auto-restart with logged-on users | `Enabled` |
-
-### Evidence
-
-![Windows Update Policy](../../assets/dc-01/gpo-windows-update.png)
 
 ---
 

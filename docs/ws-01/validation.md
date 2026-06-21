@@ -100,10 +100,6 @@ This confirms that workstation-level and domain-level policies are being applied
 
 Detailed GPO configuration is documented in [DC-01 Group Policy](../dc-01/group-policy.md).
 
-### Evidence
-
-![Applied Group Policies](../../assets/ws-01/gpresult-validation.png)
-
 ---
 
 ## Interactive Logon Notice Validation

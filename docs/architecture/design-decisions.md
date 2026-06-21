@@ -153,7 +153,7 @@ Implemented GPOs include:
 - `GPO-Workstation-Security-Baseline`
 - `GPO-Workstation-Windows-Update`
 
-Detailed Group Policy configuration is documented in [`docs/dc-01/group-policy.md`](../dc-01/group-policy.md). Exported GPO reports are stored under [`reports/gpo/`](../../reports/gpo/).
+Detailed Group Policy configuration is documented in [DC-01 Group Policy](../dc-01/group-policy.md). Exported reports are stored under [Group Policy Reports](../../reports/gpo/).
 
 ---
 
