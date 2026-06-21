@@ -1,49 +1,93 @@
-# Tailscale Integration
+# FW-01 Tailscale Integration
 
-## Overview
+## Purpose
 
-Tailscale is used to provide secure remote access to the PrimeSec infrastructure.
+Tailscale provides remote administration access to the PrimeSec Infrastructure environment.
 
-## Configuration
+`FW-01` acts as the Tailscale entry point for firewall administration and internal subnet access.
 
-- OPNsense Tailscale plugin installed
-- Tailscale interface assigned
-- Firewall rules created for management access
-- Subnet advertisement configured for 10.10.10.0/24
+---
 
-## Advertised Routes
+## Role
 
-| Subnet |
-|----------|
-| 10.10.10.0/24 |
+`FW-01` uses Tailscale to support remote management without exposing the OPNsense management interface directly to the public Internet.
 
-## Troubleshooting
+The firewall also acts as a subnet router for the internal infrastructure network.
 
-### Firmware Upgrade Issue
+---
 
-After an OPNsense firmware upgrade, Tailscale connectivity stopped working correctly.
+## Configuration Summary
 
-#### Symptoms
+| Item | Value |
+| -------- | -------- |
+| Component | `FW-01` |
+| Platform | OPNsense |
+| Tailscale Interface | `tailscale0` |
+| Advertised Subnet | `10.10.10.0/24` |
+| Remote Access Path | Tailscale mesh VPN |
+| Management Scope | Approved management hosts |
 
-- Tailscale service inactive after reboot
-- Tailscale interface disabled
-- Loss of access through Tailscale IP
-- Advertised subnet routes unavailable
+---
 
-#### Root Cause
+## Access Model
 
-The firmware upgrade affected the Tailscale integration configuration.
+Remote administration uses Tailscale as the management path.
 
-The Tailscale interface was no longer enabled and subnet advertisement settings required reconfiguration.
+```text
+Admin workstation
+    ↓
+Tailscale network
+    ↓
+FW-01 Tailscale interface
+    ↓
+OPNsense Web GUI
+```
 
-#### Resolution
+This keeps firewall administration separate from public Internet exposure.
 
-- Verified service startup configuration
-- Re-enabled Tailscale interface
-- Recreated firewall rules
-- Reconfigured subnet advertisement
-- Validated connectivity through Tailscale
+---
 
-#### Lessons Learned
+## Subnet Routing
 
-Always validate VPN services and interface assignments after firmware upgrades.
+`FW-01` advertises the internal infrastructure subnet through Tailscale.
+
+```text
+10.10.10.0/24
+```
+
+Approved Tailscale clients can reach internal infrastructure systems when route approval and firewall policy allow it.
+
+---
+
+## Firewall Dependencies
+
+Tailscale remote administration depends on:
+
+- Assigned Tailscale interface
+- Enabled Tailscale service
+- Subnet route advertisement
+- Firewall rules allowing approved management traffic
+- `MGMT_TAILSCALE` alias for trusted management hosts
+
+---
+
+## Maintenance Checks
+
+After OPNsense firmware maintenance, Tailscale should be revalidated.
+
+Recommended checks:
+
+- Tailscale service state
+- Tailscale interface assignment
+- Tailscale interface enabled state
+- Advertised subnet routes
+- Firewall rules for management access
+- Web GUI reachability through Tailscale
+
+---
+
+## Validation Reference
+
+Tailscale validation evidence is documented in [FW-01 Validation](validation.md).
+
+The validation shows the OPNsense Web GUI login page reachable through a redacted Tailscale address.

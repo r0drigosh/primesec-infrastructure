@@ -1,152 +1,102 @@
 # FW-01 Hardening
 
-## HTTPS Management Interface
+## Purpose
 
-### Configuration
-- HTTPS enabled for Web GUI access.
-- HTTP Strict Transport Security (HSTS) enabled.
+This document records the security controls applied to `FW-01`.
 
-### Purpose
-Encrypts administrative traffic and prevents browsers from using insecure HTTP connections.
+The focus is management access, authentication, remote administration, service exposure, logging, maintenance, and configuration recovery.
 
 ---
 
-## Session Management
+## Management Access
 
-### Configuration
-- Web GUI session timeout set to 30 minutes.
+The OPNsense Web GUI is configured for HTTPS management access.
 
-### Purpose
-Reduces the risk of unauthorized access from unattended administrative sessions.
+Applied controls:
 
----
+- HTTPS enabled for Web GUI access
+- HTTP Strict Transport Security enabled
+- Web GUI session timeout set to 30 minutes
 
-## Administrative Accounts
-
-### Configuration
-- Dedicated `sysadmin` account created.
-- Administrative privileges assigned through the `admins` group.
-
-### Purpose
-Avoids the use of shared administrative accounts and improves accountability.
+These controls protect administrative traffic and reduce the risk of unattended sessions remaining active.
 
 ---
 
-## Multi-Factor Authentication (TOTP)
+## Administrative Accounts and MFA
 
-### Configuration
-- Local OTP authentication server configured.
-- TOTP seed enrolled using Ente Auth.
-- OTP authentication successfully validated.
+A dedicated `sysadmin` account is configured for firewall administration.
 
-### Purpose
-Adds a second authentication factor and reduces the impact of password compromise.
+Administrative permissions are assigned through the `admins` group.
 
-### Notes
-- Authentication format: **OTP + Password**
-- Example: `123456MySecurePassword!`
+Local OTP authentication is configured for OPNsense administration using a TOTP authenticator application.
+
+OPNsense local OTP authentication uses the OTP value followed by the account password.
+
+```text
+OTP + Password
+```
+
+This reduces reliance on shared administrative access and adds a second authentication factor for the firewall management interface.
 
 ---
 
 ## Remote Administration
 
-### Configuration
-- Tailscale VPN deployed for remote administration.
-- FW-01 configured as a subnet router.
-- Management access performed through Tailscale.
+Tailscale is used for remote administration of `FW-01`.
 
-### Purpose
-Eliminates direct exposure of management services to the Internet while providing secure encrypted access.
+Current controls:
 
----
+- Tailscale deployed on OPNsense
+- `FW-01` configured as a Tailscale subnet router
+- Management access performed through the Tailscale network
+- `MGMT_TAILSCALE` alias used for approved management hosts
+- Administrative access restricted to trusted management devices
 
-## Firewall Management Restrictions
-
-### Configuration
-- `MGMT_TAILSCALE` alias created.
-- Administrative access restricted to approved management hosts.
-
-### Purpose
-Limits administrative access to trusted devices only.
+This provides remote access without exposing the OPNsense management interface directly to the public Internet.
 
 ---
 
-## Logging
+## Local Access and Services
 
-### Configuration
-- Web GUI access logging enabled.
-- Server error logging enabled.
+Console menu password protection is enabled.
 
-### Purpose
-Provides auditability and assists troubleshooting and incident investigation.
+SSH is disabled.
 
----
-
-## Console Protection
-
-### Configuration
-- Console menu password protection enabled.
-
-### Purpose
-Prevents unauthorized local administrative access.
+These controls reduce local and remote management exposure by limiting unnecessary administrative access paths.
 
 ---
 
-## SSH
+## Logging and Maintenance
 
-### Configuration
-- SSH service disabled.
+Management logging is enabled for:
 
-### Purpose
-Reduces the attack surface by removing an unnecessary management service.
+- Web GUI access
+- Server errors
 
----
+Logging supports troubleshooting, auditability, and investigation of firewall management activity.
 
-## Firmware Maintenance
+`FW-01` is documented as upgraded to OPNsense `26.1.9`.
 
-### Configuration
-- OPNsense upgraded to version 26.1.9.
+After firmware maintenance, Tailscale-related settings should be checked before relying on remote access.
 
-### Purpose
-Ensures security patches, bug fixes and platform improvements are applied.
+Recommended checks:
 
-### Notes
-
-Following the upgrade, the Tailscale integration required manual recovery:
-
-- Reassigned the Tailscale interface.
-- Re-enabled the interface assignment.
-- Restored subnet advertisement.
-- Recreated required firewall rules.
-- Validated remote access through Tailscale.
+- Tailscale service state
+- Tailscale interface assignment
+- Tailscale interface enabled state
+- Subnet advertisement
+- Firewall rules for management access
+- Remote Web GUI reachability through Tailscale
 
 ---
 
 ## Configuration Backups
 
-### Current State
-
 Configuration backups are performed manually after significant configuration changes.
 
-### Purpose
-
-Provides a recovery mechanism in case of:
+Backups provide a recovery path for:
 
 - Configuration corruption
 - Failed upgrades
 - Accidental changes
-- Disaster recovery scenarios
-
-### Future Improvement
-
-Implement automated encrypted configuration backups.
-
----
-
-## Future Improvements
-
-- SSH public key authentication (if SSH is required).
-- Suricata IDS deployment.
-- CrowdSec integration.
-- Automated encrypted configuration backups.
-- Additional management access restrictions.
+- Firewall rebuilds
