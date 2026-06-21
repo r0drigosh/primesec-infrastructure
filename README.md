@@ -48,7 +48,6 @@ The lab is deployed on Proxmox VE using an isolated internal network behind FW-0
 | Area         | Links                                                                                                                                           |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Architecture | [Design Decisions](docs/architecture/design-decisions.md) · [Diagram Source](diagrams/architecture.drawio)                                      |
-| Networking   | [DNS Configuration](docs/networking/dns.md)                                                                                                     |
 | Components   | [FW-01](docs/fw-01/overview.md) · [DC-01](docs/dc-01/overview.md) · [WS-01](docs/ws-01/overview.md) · [WEB-01](docs/web-01/overview.md)         |
 | Validation   | [FW-01](docs/fw-01/validation.md) · [DC-01](docs/dc-01/validation.md) · [WS-01](docs/ws-01/validation.md) · [WEB-01](docs/web-01/validation.md) |
 | Reports      | [Group Policy Reports](reports/gpo/)                                                                                                            |

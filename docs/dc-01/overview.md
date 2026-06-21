@@ -111,7 +111,6 @@ Exported Group Policy reports are stored under `reports/gpo/`.
 | --- | --- |
 | [Group Policy](group-policy.md) | Implemented GPOs and policy scope |
 | [DC-01 Validation](validation.md) | Validation evidence for AD DS, DNS, and Group Policy |
-| [DNS Configuration](../networking/dns.md) | DNS and DHCP responsibility model |
 | [Group Policy Reports](../../reports/gpo/) | Exported GPO reports |
 
 ---

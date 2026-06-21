@@ -86,7 +86,6 @@ The interactive logon notice is applied to `WS-01` through Group Policy and appe
 | [WS-01 Validation](validation.md) | Validation evidence for workstation identity, domain integration, Group Policy processing, and the interactive logon notice |
 | [DC-01 Group Policy](../dc-01/group-policy.md) | Implemented Group Policy configuration managed through `DC-01` |
 | [FW-01 Validation](../fw-01/validation.md) | DHCP validation evidence for the observed `WS-01` lease |
-| [DNS Configuration](../networking/dns.md) | DNS and DHCP responsibility model for the wider infrastructure |
 
 ---
 

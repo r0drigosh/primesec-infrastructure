@@ -81,7 +81,6 @@ Apache and `UFW` are enabled to start automatically with the system.
 | [WEB-01 Hardening](hardening.md) | Operational hardening notes for Apache, `UFW`, SSH exposure, and service startup |
 | [WEB-01 Design Decisions](design-decisions.md) | Practical reasoning behind the WEB-01 implementation |
 | [WEB-01 Validation](validation.md) | Validation evidence for host identity, service state, firewall policy, DNS resolution, connectivity, and web access |
-| [DNS Configuration](../networking/dns.md) | DNS and DHCP responsibility model for the wider infrastructure |
 
 ---
 

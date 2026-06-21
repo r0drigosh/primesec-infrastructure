@@ -83,7 +83,6 @@ This provides a remote management path without exposing the OPNsense management 
 | [FW-01 Hardening](hardening.md) | Security controls applied to the firewall |
 | [Tailscale Integration](tailscale.md) | Tailscale remote access and subnet routing |
 | [FW-01 Validation](validation.md) | Validation evidence for FW-01 functions |
-| [DNS Configuration](../networking/dns.md) | DNS and DHCP responsibility model |
 
 ---
 
