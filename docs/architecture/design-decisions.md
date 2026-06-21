@@ -18,7 +18,7 @@ The current Phase 1 environment includes the following systems:
 |--------|------|--------|
 | FW-01 | Firewall, gateway, NAT, DHCP, Tailscale remote access | Complete |
 | DC-01 | Windows Server Domain Controller, Active Directory, DNS, Group Policy | Complete |
-| WS-01 | Windows 11 Enterprise domain-joined workstation | Complete |
+| WS-01 | Windows 11 Pro domain-joined workstation | Complete |
 | WEB-01 | Ubuntu Server 24.04.4 LTS with Apache HTTP Server | Complete |
 
 ---
@@ -190,7 +190,7 @@ Current WS-01 state:
 | Property | Value |
 |----------|-------|
 | Hostname | WS-01 |
-| Operating System | Windows 11 Enterprise |
+| Operating System | Windows 11 Pro |
 | Domain | primesec.local |
 | Current DHCP Lease | 10.10.10.152 |
 | Lease Type | Dynamic |
@@ -282,8 +282,8 @@ Validation evidence exists for:
 
 The existing architecture diagram files are retained:
 
-- `diagrams/v1-architecture.drawio`
-- `diagrams/v1-architecture.png`
+- `diagrams/architecture.drawio`
+- `diagrams/architecture.png`
 
 The diagram still needs to be refreshed to fully reflect the completed DC-01 and WS-01 implementation.
 
