@@ -1,25 +1,43 @@
-# Validation
+# WS-01 Validation
 
-Validation activities were performed to verify that WS-01 is operating correctly as a domain-joined workstation within the PrimeSec Infrastructure environment.
+## Purpose
 
-The objective of these validation procedures is to confirm successful integration with Active Directory, verify Group Policy processing, and demonstrate that centralized workstation management is functioning as designed.
+This document records validation evidence for `WS-01`.
 
-The validation results confirm that WS-01 can communicate with domain services, receive centrally managed policies, and operate as a managed endpoint within the `primesec.local` domain.
+Validation covers workstation identity, domain integration, computer Group Policy processing, applied Group Policy Objects, the interactive logon notice, and the documented dynamic DHCP lease.
 
 ---
 
-## Domain Membership Validation
+## Validation Summary
 
-Domain membership validation was performed to confirm that WS-01 successfully joined the Active Directory domain and is recognized as a managed domain workstation.
+| Check | Result |
+| --- | --- |
+| Workstation identity | Passed |
+| Domain integration | Passed |
+| Computer Group Policy processing | Passed |
+| Applied Group Policy Objects | Passed |
+| Interactive logon notice | Passed |
+| Dynamic DHCP lease reference | Documented |
 
-The validation confirms:
+---
 
-- Hostname configured as **WS-01**
-- Successful membership in the **primesec.local** domain
-- Active Directory trust relationship established
-- Workstation identity correctly registered within the domain
+## Workstation Identity Validation
 
-Validating domain membership is a foundational requirement for centralized authentication, Group Policy processing, and domain-based administration. Without successful domain integration, workstation management capabilities provided by Active Directory would not be available.
+### Objective
+
+Verify the visible workstation name and domain-style device name for `WS-01`.
+
+### Result
+
+The evidence shows the following workstation identity details:
+
+| Property | Value |
+| --- | --- |
+| Device name | `WS-01` |
+| Full device name | `WS-01.primesec.local` |
+| System type | `64-bit operating system, x64-based processor` |
+
+The full device name confirms that the workstation is using the `primesec.local` domain namespace.
 
 ### Evidence
 
@@ -27,50 +45,60 @@ Validating domain membership is a foundational requirement for centralized authe
 
 ---
 
-## Group Policy Processing Validation
+## Domain and Group Policy Processing Validation
 
-Group Policy processing validation was performed to verify that WS-01 can successfully communicate with DC-01 and receive configuration data from Active Directory.
+### Objective
 
-The validation confirms:
+Verify that `WS-01` is operating as a domain workstation and can process computer Group Policy from `DC-01`.
 
-- Successful Group Policy processing
-- Communication with domain services
-- Retrieval of assigned policies
-- Active participation in centralized management
+### Procedure
 
-The successful generation of Group Policy Results demonstrates that the workstation can consume policies distributed through Active Directory and apply centrally managed configuration settings.
+```powershell
+gpresult /scope computer /r
+```
 
-This validation is important because Group Policy serves as the primary mechanism for centralized workstation administration within enterprise Windows environments.
+### Result
+
+The `gpresult` output confirms computer-side domain integration and Group Policy processing.
+
+Recorded output includes:
+
+| Property | Value |
+| --- | --- |
+| Computer | `WS-01` |
+| OS configuration | `Member Workstation` |
+| Computer account path | `CN=WS-01,OU=Workstations,OU=PRIMESEC,DC=primesec,DC=local` |
+| Group Policy source | `DC-01.primesec.local` |
+| Domain name | `PRIMESEC` |
+| Slow link detected | `No` |
+
+This confirms that `WS-01` can retrieve computer policy from the domain controller and process domain-based workstation configuration.
 
 ### Evidence
 
-![Applied Group Policies](../../assets/ws-01/gpresult-validation.png)
+![Group Policy Result](../../assets/ws-01/gpresult-validation.png)
 
 ---
 
-## Applied Policy Validation
+## Applied Group Policy Objects Validation
 
-Policy validation was performed to confirm that assigned Group Policy Objects are being successfully applied to WS-01.
+### Objective
 
-The validation confirms application of the following policies:
+Verify that the expected Group Policy Objects are applied to `WS-01`.
 
-- GPO-Workstation-Security-Baseline
-- GPO-Workstation-Windows-Update
-- GPO-Interactive-Logon-Notice
-- GPO-Domain-Password-Policy
-- Default Domain Policy
+### Result
 
-Successful policy application demonstrates that workstation configuration is being managed centrally rather than through local administrative settings.
+The `gpresult` output shows the following applied GPOs:
 
-Centralized policy enforcement provides several operational advantages:
+- `GPO-Workstation-Security-Baseline`
+- `GPO-Workstation-Windows-Update`
+- `GPO-Interactive-Logon-Notice`
+- `GPO-Domain-Password-Policy`
+- `Default Domain Policy`
 
-- Consistent workstation configuration
-- Standardized security controls
-- Reduced configuration drift
-- Simplified administration
-- Improved scalability
+This confirms that workstation-level and domain-level policies are being applied to the workstation.
 
-The ability to deploy and enforce policies from a central location is a fundamental capability of enterprise Windows administration.
+Detailed GPO configuration is documented in [DC-01 Group Policy](../dc-01/group-policy.md).
 
 ### Evidence
 
@@ -80,18 +108,22 @@ The ability to deploy and enforce policies from a central location is a fundamen
 
 ## Interactive Logon Notice Validation
 
-The interactive logon notice was validated to confirm successful deployment of user-facing Group Policy settings.
+### Objective
 
-The validation confirms:
+Verify that the interactive logon notice configured through Group Policy appears on `WS-01`.
 
-- The workstation successfully received the Interactive Logon Notice policy
-- The security banner is displayed before user authentication
-- User-facing Group Policy settings are applied correctly
-- Centralized policy deployment is functioning as expected
+### Result
 
-The displayed banner provides an authorized-use notification and demonstrates successful communication between the workstation and Active Directory infrastructure.
+The workstation displays the configured logon notice before sign-in.
 
-This validation provides visible confirmation that workstation policies are being processed and enforced correctly on managed endpoints.
+Visible notice content:
+
+| Field | Value |
+| --- | --- |
+| Title | `PrimeSec Infrastructure` |
+| Message | `Authorized Access Only. This workstation is managed by PrimeSec Infrastructure. Unauthorized use is prohibited and may be monitored.` |
+
+This confirms that the interactive logon notice policy is applied on the workstation.
 
 ### Evidence
 
@@ -99,19 +131,32 @@ This validation provides visible confirmation that workstation policies are bein
 
 ---
 
-## Validation Summary
+## DHCP Lease Reference
 
-The validation activities performed on WS-01 confirm successful integration with the Active Directory environment and verify that centralized workstation management is operating as designed.
+### Objective
 
-Validated capabilities include:
+Record the documented dynamic DHCP lease for `WS-01`.
 
-- Successful domain membership within `primesec.local`
-- Functional Active Directory integration
-- Successful Group Policy processing
-- Centralized workstation management
-- Consistent policy enforcement
-- Successful deployment of user-facing security controls
+### Result
 
-The results demonstrate that WS-01 is functioning as a managed enterprise workstation and is successfully receiving administrative controls from DC-01.
+`WS-01` is documented with a dynamic DHCP lease from `FW-01`.
 
-Together, these validation activities confirm that Active Directory authentication, Group Policy management, and centralized workstation administration are operating correctly within the PrimeSec Infrastructure environment.
+| Property | Value |
+| --- | --- |
+| DHCP provider | `FW-01` |
+| DHCP scope | `10.10.10.100 - 10.10.10.199` |
+| Observed lease | `10.10.10.152` |
+| Lease type | `dynamic` |
+| DHCP DNS server | `DC-01` / `10.10.10.10` |
+
+The DHCP lease evidence is maintained in [FW-01 Validation](../fw-01/validation.md#dhcp-validation), because the lease is visible from the firewall DHCP service rather than the WS-01 screenshots.
+
+---
+
+## Conclusion
+
+`WS-01` validation confirms that the workstation is integrated with the `primesec.local` domain, processes computer Group Policy from `DC-01`, receives the expected applied GPOs, and displays the configured interactive logon notice.
+
+The documented DHCP lease places `WS-01` on the internal `10.10.10.0/24` network as a dynamic client of `FW-01`.
+
+Together, these checks support the documented role of `WS-01` as the Windows 11 Pro domain workstation and Group Policy target for the PrimeSec Infrastructure environment.

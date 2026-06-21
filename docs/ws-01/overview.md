@@ -4,63 +4,68 @@
 
 `WS-01` is the managed Windows workstation in the PrimeSec Infrastructure environment.
 
-It runs Windows 11 Pro, is joined to the `primesec.local` domain, and receives workstation configuration through Active Directory Group Policy.
+It runs Windows 11 Pro, is joined to the `primesec.local` domain, receives network configuration through DHCP, and processes workstation configuration through Active Directory Group Policy.
 
 ---
 
 ## Environment Role
 
-`WS-01` represents a standard domain-joined client system on the internal network.
+`WS-01` represents a standard internal Windows client on the infrastructure network.
 
-It is used to validate normal workstation integration with the domain, including authentication, DNS dependency, DHCP assignment, Group Policy processing, and the interactive logon notice.
+It is used to validate workstation integration with the domain, including DHCP addressing, Active Directory DNS dependency, computer Group Policy processing, and the interactive logon notice.
 
 ---
 
 ## System Summary
 
 | Property | Value |
-| -------- | -------- |
+| --- | --- |
 | Component | `WS-01` |
-| Operating System | Windows 11 Pro |
-| Virtualization Platform | Proxmox VE |
-| Role | Domain-joined workstation |
+| Operating system | Windows 11 Pro |
+| Virtualization platform | Proxmox VE |
+| Role | Domain-joined Windows workstation |
+| Domain | `primesec.local` |
 
 ---
 
-## Network Summary
+## Network and Domain Summary
 
 | Property | Value |
-| -------- | -------- |
-| Network | `10.10.10.0/24` |
-| DHCP Lease | `10.10.10.152` |
-| Default Gateway | `FW-01` / `10.10.10.1` |
-| DNS Server | `DC-01` / `10.10.10.10` |
+| --- | --- |
+| Internal network | `10.10.10.0/24` |
+| DHCP provider | `FW-01` |
+| DHCP scope | `10.10.10.100 - 10.10.10.199` |
+| Observed DHCP lease | `10.10.10.152` |
+| Lease type | `dynamic` |
+| Default gateway | `FW-01` / `10.10.10.1` |
+| DNS server | `DC-01` / `10.10.10.10` |
+| DNS namespace | `primesec.local` |
 
-`WS-01` receives its address dynamically from the `FW-01` DHCP scope `10.10.10.100 - 10.10.10.199`.
+`WS-01` receives its address dynamically from the `FW-01` DHCP scope.
 
-The address `10.10.10.152` is the observed DHCP lease for `WS-01`, not a static workstation address.
+`FW-01` provides DHCP and gateway services. `DC-01` remains authoritative for the `primesec.local` Active Directory DNS namespace.
 
 ---
 
 ## Key Functions
 
-### Domain Membership
+### Domain Client
 
 `WS-01` is joined to the `primesec.local` Active Directory domain.
 
-As a domain member, it uses `DC-01` for domain authentication, Active Directory service discovery, DNS resolution for the AD domain, and Group Policy processing.
+As a domain client, it uses `DC-01` for domain service discovery, Active Directory DNS resolution, and Group Policy processing.
 
-### DHCP Client Configuration
+### DHCP Client
 
 `WS-01` receives its network configuration from `FW-01` through DHCP.
 
-The documented lease confirms that `WS-01` received an address from the configured DHCP scope.
+The observed dynamic lease for the workstation is `10.10.10.152`.
 
-### Group Policy Processing
+### Group Policy Target
 
-`WS-01` receives workstation configuration from Group Policy.
+`WS-01` processes computer Group Policy from `DC-01`.
 
-Validated applied policies include:
+Applied GPOs observed during validation include:
 
 - `GPO-Workstation-Security-Baseline`
 - `GPO-Workstation-Windows-Update`
@@ -70,18 +75,18 @@ Validated applied policies include:
 
 ### Interactive Logon Notice
 
-The interactive logon notice is applied to `WS-01` through Group Policy and appears before user sign-in.
+The interactive logon notice is applied to `WS-01` through Group Policy and appears before sign-in.
 
 ---
 
 ## Related Documentation
 
 | Document | Purpose |
-| -------- | -------- |
-| [WS-01 Validation](validation.md) | Validation evidence for domain membership and policy application |
-| [DC-01 Group Policy](../dc-01/group-policy.md) | Group Policy configuration applied to the workstation |
-| [DNS Configuration](../networking/dns.md) | DNS and DHCP model used by domain clients |
-| [FW-01 Validation](../fw-01/validation.md) | DHCP evidence for the WS-01 lease |
+| --- | --- |
+| [WS-01 Validation](validation.md) | Validation evidence for workstation identity, domain integration, Group Policy processing, and the interactive logon notice |
+| [DC-01 Group Policy](../dc-01/group-policy.md) | Implemented Group Policy configuration managed through `DC-01` |
+| [FW-01 Validation](../fw-01/validation.md) | DHCP validation evidence for the observed `WS-01` lease |
+| [DNS Configuration](../networking/dns.md) | DNS and DHCP responsibility model for the wider infrastructure |
 
 ---
 
@@ -91,8 +96,9 @@ The interactive logon notice is applied to `WS-01` through Group Policy and appe
 
 Validation covers:
 
-- Domain membership
-- Domain user authentication
-- Group Policy processing
+- Workstation identity
+- Domain naming
+- Computer Group Policy processing
+- Applied Group Policy Objects
 - Interactive logon notice application
-- DHCP lease assignment
+- Dynamic DHCP lease reference
