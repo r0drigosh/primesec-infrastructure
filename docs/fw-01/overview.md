@@ -2,174 +2,98 @@
 
 ## Purpose
 
-FW-01 is the firewall and default gateway for the PrimeSec Infrastructure environment.
+`FW-01` is the OPNsense firewall for the PrimeSec Infrastructure environment.
 
-It routes traffic between the internal infrastructure network and upstream connectivity, provides NAT, owns DHCP for the LAN, and provides a Tailscale-based remote administration path.
+It provides the internal network gateway, routing, NAT, DHCP, firewall policy enforcement, and Tailscale-based remote administration.
 
 ---
 
-## Platform Information
+## Environment Role
+
+`FW-01` is the network edge for the internal infrastructure network. It separates the lab network from upstream connectivity and provides the default route used by the internal systems.
+
+Systems behind `FW-01` include:
+
+- `DC-01` — Windows Server 2022 domain controller
+- `WS-01` — Windows 11 Pro domain-joined workstation
+- `WEB-01` — Ubuntu Server Apache web server
+
+---
+
+## System Summary
 
 | Property | Value |
-|----------|-------|
-| Hostname | FW-01 |
+| -------- | -------- |
+| Component | `FW-01` |
 | Platform | OPNsense |
 | Virtualization Platform | Proxmox VE |
-| LAN IP Address | 10.10.10.1 |
-| Start at Boot | Enabled |
+| Role | Firewall, gateway, NAT, DHCP, and remote access |
 
 ---
 
-## Infrastructure Role
+## Network Summary
 
-FW-01 is the central network component for the Phase 1 environment.
+| Property | Value |
+| -------- | -------- |
+| Internal Network | `10.10.10.0/24` |
+| Default Gateway | `10.10.10.1` |
+| Active Directory DNS | `DC-01` / `10.10.10.10` |
+| DHCP Scope | `10.10.10.100 - 10.10.10.199` |
 
-Current systems depending on FW-01:
-
-- DC-01 — Windows Server Domain Controller
-- WS-01 — Windows 11 Enterprise domain-joined workstation
-- WEB-01 — Ubuntu Server with Apache HTTP Server
-
-FW-01 provides these core network functions:
-
-- Default gateway access
-- Routing
-- NAT
-- DHCP services
-- Firewall policy enforcement
-- Remote administration through Tailscale
+`FW-01` provides DHCP for the internal network and uses `DC-01` as the DNS authority for Active Directory name resolution.
 
 ---
 
-## Network Interfaces
+## Key Functions
 
-FW-01 is configured with two network interfaces.
+### Gateway, Routing, and NAT
 
-| Interface | Purpose |
-|-----------|---------|
-| WAN | External or upstream network connectivity |
-| LAN | Internal infrastructure network |
+`FW-01` routes traffic between the internal network and upstream connectivity.
 
-The LAN interface is the default gateway for the internal network.
-
-### Internal Network
-
-```text
-10.10.10.0/24
-```
-
-### Default Gateway
-
-```text
-10.10.10.1
-```
-
----
-
-## Services Provided
-
-### Routing
-
-FW-01 routes traffic between the internal infrastructure network and the upstream network.
-
-### Network Address Translation
-
-FW-01 provides NAT so systems using private internal addressing can access external resources.
+NAT allows internal systems using the `10.10.10.0/24` network to reach external resources through `FW-01`.
 
 ### DHCP
 
-FW-01 owns DHCP for the internal infrastructure network.
+`FW-01` owns DHCP for the internal network.
 
-DHCP is configured to provide clients with:
+DHCP is configured with:
 
-| Setting | Value |
-|---------|-------|
-| Default Gateway | 10.10.10.1 |
-| DNS Server | 10.10.10.10 |
-| Domain/Search Suffix | primesec.local |
-| DHCP Scope Range | 10.10.10.100 - 10.10.10.199 |
+- Scope: `10.10.10.100 - 10.10.10.199`
+- Default gateway: `10.10.10.1`
+- DNS server: `10.10.10.10`
+- Domain/search suffix: `primesec.local`
 
-Validation evidence shows that WS-01 received a dynamic DHCP lease from FW-01.
+`WS-01` currently holds a dynamic DHCP lease at `10.10.10.152`.
 
-| Item | Verified Value |
-|------|----------------|
-| Client Hostname | WS-01 |
-| Lease Address | 10.10.10.152 |
-| Lease Type | Dynamic |
+### Firewall Policy
 
-### Firewall Services
-
-FW-01 applies traffic filtering between the internal network and upstream connectivity.
+`FW-01` applies network filtering between the internal infrastructure network and upstream connectivity.
 
 ### Remote Administration
 
-FW-01 is reachable for administration through Tailscale.
-
-This avoids exposing the OPNsense management interface directly to the public Internet.
-
----
-
-## DNS Role Clarification
-
-FW-01 is not the authoritative DNS server for the Active Directory domain.
-
-The current Active Directory namespace is:
-
-```text
-primesec.local
-```
-
-The authoritative internal DNS server for Active Directory and domain-joined systems is:
-
-```text
-DC-01 / 10.10.10.10
-```
-
-FW-01 may provide upstream or external DNS forwarding for non-domain or network-level services, but Active Directory DNS authority belongs to DC-01.
-
-Older references to `primesec.internal` or FW-01 as the primary internal AD DNS server should be treated as legacy lab naming.
-
----
-
-## Infrastructure Dependencies
-
-FW-01 relies on the following components.
-
-### Proxmox VE
-
-Provides:
-
-- Virtualization resources
-- Virtual networking
-- Virtual machine lifecycle management
-
-### Upstream Network Connectivity
-
-Provides:
-
-- Internet access
-- External network reachability
-- Connectivity required for updates and external DNS testing
-
-### Administrative Devices
-
-Authorized administrative devices are used to manage FW-01 through approved access paths, including Tailscale-based remote administration.
+`FW-01` provides remote administrative access through Tailscale. The Tailscale configuration is documented separately in the FW-01 Tailscale documentation.
 
 ---
 
 ## Related Documentation
 
-| Document | Description |
-|----------|-------------|
-| [Hardening](hardening.md) | Security controls and hardening measures applied to FW-01 |
-| [Tailscale Remote Access](tailscale.md) | Remote administration architecture and VPN integration |
-| [Validation](validation.md) | Operational testing and validation evidence |
+| Document | Purpose |
+| -------- | -------- |
+| [FW-01 Hardening](hardening.md) | Security controls applied to the firewall |
+| [Tailscale Integration](tailscale.md) | Tailscale remote access configuration |
 | [DNS Configuration](../networking/dns.md) | DNS and DHCP responsibility model |
+| [FW-01 Validation](validation.md) | Validation evidence for FW-01 functions |
 
 ---
 
-## Summary
+## Validation Reference
 
-FW-01 provides the network edge for the current Phase 1 environment.
+`FW-01` validation is documented in [FW-01 Validation](validation.md).
 
-It is responsible for gateway services, routing, NAT, DHCP, firewalling, and Tailscale-based remote administration.
+Validation covers:
+
+- External network connectivity
+- External DNS resolution from `FW-01`
+- DHCP scope configuration
+- `WS-01` dynamic DHCP lease assignment
+- Tailscale-based remote administration
