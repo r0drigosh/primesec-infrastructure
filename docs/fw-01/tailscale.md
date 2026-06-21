@@ -19,7 +19,7 @@ The firewall also acts as a subnet router for the internal infrastructure networ
 ## Configuration Summary
 
 | Item | Value |
-| -------- | -------- |
+| --- | --- |
 | Component | `FW-01` |
 | Platform | OPNsense |
 | Tailscale Interface | `tailscale0` |

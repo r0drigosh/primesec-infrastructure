@@ -11,7 +11,7 @@ Validation covers the firewall's role as the internal gateway, NAT device, DHCP 
 ## Validation Summary
 
 | Check | Result |
-| -------- | -------- |
+| --- | --- |
 | Interface assignments | Passed |
 | External connectivity | Passed |
 | External DNS resolution | Passed |
@@ -31,7 +31,7 @@ Verify that the expected OPNsense interfaces are assigned.
 Evidence shows the following interface assignments:
 
 | Interface | Identifier | Device |
-| -------- | -------- | -------- |
+| --- | --- | --- |
 | `LAN` | `lan` | `vtnet1` |
 | `TAILSCALE` | `opt1` | `tailscale0` |
 | `WAN` | `wan` | `vtnet0` |
@@ -164,7 +164,7 @@ This validates the remote administration path up to the OPNsense Web GUI.
 `DC-01` / `10.10.10.10` remains authoritative for the `primesec.local` Active Directory namespace.
 
 | Function | System |
-| -------- | -------- |
+| --- | --- |
 | Default gateway | `FW-01` / `10.10.10.1` |
 | DHCP provider | `FW-01` |
 | Active Directory DNS authority | `DC-01` / `10.10.10.10` |

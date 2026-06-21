@@ -23,7 +23,7 @@ Systems behind `FW-01` include:
 ## System Summary
 
 | Property | Value |
-| -------- | -------- |
+| --- | --- |
 | Component | `FW-01` |
 | Platform | OPNsense |
 | Virtualization Platform | Proxmox VE |
@@ -34,7 +34,7 @@ Systems behind `FW-01` include:
 ## Network Summary
 
 | Property | Value |
-| -------- | -------- |
+| --- | --- |
 | Internal Network | `10.10.10.0/24` |
 | LAN Gateway | `10.10.10.1` |
 | DHCP Scope | `10.10.10.100 - 10.10.10.199` |
@@ -79,7 +79,7 @@ This provides a remote management path without exposing the OPNsense management 
 ## Related Documentation
 
 | Document | Purpose |
-| -------- | -------- |
+| --- | --- |
 | [FW-01 Hardening](hardening.md) | Security controls applied to the firewall |
 | [Tailscale Integration](tailscale.md) | Tailscale remote access and subnet routing |
 | [FW-01 Validation](validation.md) | Validation evidence for FW-01 functions |
