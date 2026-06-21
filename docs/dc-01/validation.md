@@ -1,28 +1,51 @@
-# Validation
+# DC-01 Validation
 
-Validation activities were performed to confirm that the Active Directory deployment, DNS infrastructure, and Group Policy implementation are operating as designed.
+## Purpose
 
-The objective of validation is to verify the operational state of the environment rather than the implementation process itself. These checks provide evidence that core services are functioning correctly and that the domain infrastructure is capable of supporting centralized authentication, policy management, and workstation administration.
+This document records validation evidence for `DC-01`.
 
-The validation process focused on domain configuration, directory structure, DNS functionality, domain controller health, policy deployment, and workstation policy application.
+Validation covers Active Directory Domain Services, Active Directory Integrated DNS, domain controller health, Organizational Unit structure, and Group Policy configuration.
 
 ---
 
-## Domain Validation
+## Validation Summary
 
-The Active Directory domain configuration was validated using PowerShell to confirm the successful deployment of the forest and domain services.
+| Check | Result |
+| --- | --- |
+| Active Directory domain configuration | Passed |
+| Organizational Unit structure | Passed |
+| Active Directory DNS zone | Passed |
+| Domain controller health check | Passed |
+| Group Policy linking | Passed |
+| Implemented GPO settings | Passed |
 
-The validation confirms:
+---
 
-- Successful creation of the `primesec.local` domain
-- Successful creation of the Active Directory forest
-- Correct NetBIOS configuration (`PRIMESEC`)
-- Proper identification of the Domain Controller
-- Successful registration of Active Directory services
+## Domain Configuration Validation
 
-The results verify that DC-01 is operating as the authoritative Domain Controller for the environment and that the Active Directory deployment was completed successfully.
+### Objective
 
-Validating domain information is important because Active Directory serves as the central identity platform for the infrastructure. Incorrect domain configuration can affect authentication, authorization, DNS integration, and Group Policy processing across all domain-joined systems.
+Verify that the Active Directory domain is configured with the expected domain name, NetBIOS name, and domain controller identity.
+
+### Procedure
+
+```powershell
+Get-ADDomain
+```
+
+### Result
+
+The PowerShell output confirms the following domain configuration:
+
+| Property | Value |
+| --- | --- |
+| Domain | `primesec.local` |
+| NetBIOS name | `PRIMESEC` |
+| DNS root | `primesec.local` |
+| Domain mode | `Windows2016Domain` |
+| Domain controller | `DC-01.primesec.local` |
+
+The captured output shows `DC-01.primesec.local` as the domain controller for visible domain role fields.
 
 ### Evidence
 
@@ -30,11 +53,15 @@ Validating domain information is important because Active Directory serves as th
 
 ---
 
-## Active Directory Structure Validation
+## Organizational Unit Validation
 
-The Organizational Unit (OU) hierarchy was validated to confirm that the planned directory structure was successfully implemented.
+### Objective
 
-The following Organizational Units were verified:
+Verify that the expected Organizational Unit structure exists in Active Directory.
+
+### Result
+
+The `PRIMESEC` OU contains the expected administrative structure:
 
 ```text
 PRIMESEC
@@ -45,9 +72,15 @@ PRIMESEC
 └── Workstations
 ```
 
-The validation confirms that administrative accounts, user accounts, security groups, servers, and workstations can be logically separated within the directory.
+The evidence also shows example objects placed under the structure, including:
 
-A properly structured OU hierarchy is important because it provides administrative organization and enables targeted Group Policy deployment. The structure also establishes a scalable foundation for future infrastructure growth and additional policy implementation.
+- `PS Admin`
+- `GG_Admins`
+- `GG_Users`
+- `PS User`
+- `WS-01`
+
+This confirms that user, group, server, and workstation objects can be separated logically for administration and policy targeting.
 
 ### Evidence
 
@@ -55,27 +88,26 @@ A properly structured OU hierarchy is important because it provides administrati
 
 ---
 
-## DNS Validation
+## DNS Zone Validation
 
-The DNS service was validated to confirm proper integration with Active Directory and successful operation of the name resolution infrastructure.
+### Objective
 
-Validation confirmed:
+Verify that `DC-01` hosts the Active Directory DNS zone for `primesec.local`.
 
-- Active Directory Integrated DNS is operational
-- Forward Lookup Zones are present and functional
-- Domain records were successfully created
-- Host records are available for managed systems
-- Active Directory service records are present
+### Result
 
-The DNS infrastructure contains records for:
+DNS Manager shows the `primesec.local` forward lookup zone on `DC-01`.
 
-- DC-01
-- FW-01
-- WS-01
+The zone contains Active Directory DNS folders and host records for core systems.
 
-Active Directory relies heavily on DNS for service discovery, authentication, and domain controller location. Domain-joined systems use DNS to locate authentication services and other directory resources required for normal operation.
+| Record | Type | Value |
+| --- | --- | --- |
+| `(same as parent folder)` | `Host (A)` | `10.10.10.10` |
+| `dc-01` | `Host (A)` | `10.10.10.10` |
+| `fw-01` | `Host (A)` | `10.10.10.1` |
+| `WS-01` | `Host (A)` | `10.10.10.152` |
 
-A healthy DNS deployment is therefore essential to the overall functionality of the domain environment.
+The evidence confirms that `DC-01` is hosting the internal Active Directory DNS namespace for `primesec.local`.
 
 ### Evidence
 
@@ -85,22 +117,21 @@ A healthy DNS deployment is therefore essential to the overall functionality of 
 
 ## Domain Controller Health Validation
 
-Domain Controller health was validated using the Microsoft DCDIAG utility.
+### Objective
 
-The command `dcdiag /q` was executed to perform diagnostic validation of Active Directory services while suppressing normal output and displaying only detected issues.
+Verify domain controller health using the Microsoft `dcdiag` diagnostic tool.
 
-The validation returned no reported errors.
+### Procedure
 
-A clean result indicates that no domain controller health issues were detected during the validation process.
+```cmd
+dcdiag /q
+```
 
-This outcome confirms that:
+### Result
 
-- Active Directory services are operating normally
-- DNS integration is functioning correctly
-- Core domain controller services are healthy
-- No critical replication or service validation issues were detected
+The captured command output returns to the prompt with no visible diagnostic errors.
 
-DCDIAG is a commonly used administrative tool for validating Active Directory health and identifying configuration or operational issues that may affect domain functionality.
+`dcdiag /q` suppresses normal output and displays detected issues only. The captured result shows no reported issues in the visible output.
 
 ### Evidence
 
@@ -108,25 +139,25 @@ DCDIAG is a commonly used administrative tool for validating Active Directory he
 
 ---
 
-## Group Policy Validation
+## Group Policy Linking Validation
 
-Group Policy deployment was validated through the Group Policy Management Console to confirm successful policy linking and policy assignment.
+### Objective
 
-The validation confirmed that:
+Verify that the implemented Group Policy Objects are linked to the expected domain or OU locations.
 
-- Domain-level policies are linked correctly
-- Workstation-specific policies are linked to the appropriate Organizational Unit
-- Policy inheritance is functioning as expected
-- Centralized management is operational
+### Result
 
-The following policies were verified:
+Group Policy Management shows the following policy links:
 
-- GPO-Domain-Password-Policy
-- GPO-Interactive-Logon-Notice
-- GPO-Workstation-Security-Baseline
-- GPO-Workstation-Windows-Update
+| Scope | Linked GPO |
+| --- | --- |
+| `primesec.local` | `Default Domain Policy` |
+| `primesec.local` | `GPO-Domain-Password-Policy` |
+| `PRIMESEC/Workstations` | `GPO-Interactive-Logon-Notice` |
+| `PRIMESEC/Workstations` | `GPO-Workstation-Security-Baseline` |
+| `PRIMESEC/Workstations` | `GPO-Workstation-Windows-Update` |
 
-Policy validation is important because improperly linked or misconfigured policies may not be applied to target systems. Successful validation confirms that the Active Directory structure and policy deployment model are functioning correctly.
+This confirms that domain-level and workstation-level policy scopes are separated.
 
 ### Evidence
 
@@ -134,41 +165,105 @@ Policy validation is important because improperly linked or misconfigured polici
 
 ---
 
-## Interactive Logon Notice Validation
+## Domain Password Policy Validation
 
-The interactive logon notice was validated from the workstation perspective to confirm successful policy application on a domain-joined endpoint.
+### Objective
 
-The validation confirmed that:
+Verify the configured domain password and account lockout policy.
 
-- The workstation successfully received the policy
-- The logon banner is displayed prior to authentication
-- Group Policy processing completed successfully
-- User-facing policy settings are applied as expected
+### Result
 
-The displayed banner presents an authorized access notice and organizational message before users are permitted to sign in.
+The `GPO-Domain-Password-Policy` evidence confirms the following settings:
 
-This validation demonstrates successful communication between Active Directory, Group Policy, and the managed workstation. It also confirms that workstation-targeted policies are being applied correctly within the environment.
+| Setting | Value |
+| --- | --- |
+| Enforce password history | `24 passwords remembered` |
+| Maximum password age | `90 days` |
+| Minimum password age | `1 day` |
+| Minimum password length | `12 characters` |
+| Password complexity | `Enabled` |
+| Reversible password encryption | `Disabled` |
+| Account lockout threshold | `5 invalid logon attempts` |
+| Account lockout duration | `15 minutes` |
+| Reset account lockout counter | `15 minutes` |
 
 ### Evidence
 
-![Interactive Logon Notice](../../assets/ws-01/interactive-logon-notice.png)
+![Domain Password Policy](../../assets/dc-01/gpo-password-policy.png)
 
 ---
 
-## Validation Summary
+## Interactive Logon Notice Validation
 
-Validation activities confirmed the successful operation of the Active Directory infrastructure deployed on DC-01.
+### Objective
 
-The completed verification process demonstrated:
+Verify that the interactive logon notice GPO is configured.
 
-- Successful Active Directory deployment
-- Functional forest and domain configuration
-- Operational Organizational Unit structure
-- Healthy Active Directory Integrated DNS services
-- Healthy Domain Controller status
-- Successful Group Policy deployment and linking
-- Successful workstation policy application
+### Result
 
-The validation results provide evidence that the environment is functioning as designed and that core identity, authentication, name resolution, and policy management services are operational.
+The `GPO-Interactive-Logon-Notice` evidence confirms the configured logon notice.
 
-Collectively, these validation activities confirm that DC-01 is operating as the central identity and management platform for the PrimeSec Infrastructure environment, providing a stable foundation for centralized administration, workstation management, and future infrastructure expansion.
+| Setting | Value |
+| --- | --- |
+| Message title | `PrimeSec Infrastructure` |
+| Message text | `Authorized Access Only. This workstation is managed by PrimeSec Infrastructure. Unauthorized use is prohibited and may be monitored.` |
+
+### Evidence
+
+![Interactive Logon Notice GPO](../../assets/dc-01/gpo-logon-notice.png)
+
+---
+
+## Workstation Security Baseline Validation
+
+### Objective
+
+Verify the workstation security baseline settings configured through Group Policy.
+
+### Result
+
+The `GPO-Workstation-Security-Baseline` evidence confirms the following settings:
+
+| Setting | Value |
+| --- | --- |
+| Guest account status | `Disabled` |
+| Do not display last signed-in user | `Enabled` |
+| Turn off Microsoft Defender Antivirus | `Disabled` |
+
+The Microsoft Defender policy means the GPO does not disable Microsoft Defender Antivirus.
+
+### Evidence
+
+![Workstation Security Baseline](../../assets/dc-01/gpo-security-baseline.png)
+
+---
+
+## Windows Update Policy Validation
+
+### Objective
+
+Verify the workstation Windows Update policy configured through Group Policy.
+
+### Result
+
+The `GPO-Workstation-Windows-Update` evidence confirms the following settings:
+
+| Setting | Value |
+| --- | --- |
+| Configure Automatic Updates | `Enabled` |
+| Automatic update mode | `4 - Auto download and schedule the install` |
+| Scheduled install day | `0 - Every day` |
+| Scheduled install time | `04:00` |
+| No auto-restart with logged-on users | `Enabled` |
+
+### Evidence
+
+![Windows Update Policy](../../assets/dc-01/gpo-windows-update.png)
+
+---
+
+## Conclusion
+
+Validation evidence confirms that `DC-01` is operating as the Active Directory domain controller, DNS authority for `primesec.local`, and Group Policy management point for the environment.
+
+The captured evidence supports the configured domain, OU structure, DNS zone, domain controller health check, GPO linking model, and implemented GPO settings.

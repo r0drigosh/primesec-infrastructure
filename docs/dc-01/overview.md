@@ -10,33 +10,43 @@ It hosts the `primesec.local` Active Directory domain and provides Active Direct
 
 ## Environment Role
 
-`DC-01` is the identity and internal DNS authority for the Windows domain.
+`DC-01` is the central identity, authentication, internal DNS, and Group Policy management component for the Windows domain.
 
-Domain-joined systems use `DC-01` for authentication, Active Directory service discovery, internal domain name resolution, and Group Policy processing.
+Domain-joined systems use `DC-01` for:
+
+- Domain authentication
+- Active Directory service discovery
+- Internal `primesec.local` name resolution
+- Group Policy processing
+
+`FW-01` remains the internal gateway and DHCP provider. `FW-01` distributes `DC-01` / `10.10.10.10` as the DNS server for domain clients.
 
 ---
 
 ## System Summary
 
 | Property | Value |
-| -------- | -------- |
+| --- | --- |
 | Component | `DC-01` |
-| Operating System | Windows Server 2022 |
-| Virtualization Platform | Proxmox VE |
-| Role | Domain controller |
+| Operating system | Windows Server 2022 |
+| Virtualization platform | Proxmox VE |
+| Role | Domain controller, AD DS, DNS, Group Policy |
+| Domain | `primesec.local` |
+| NetBIOS name | `PRIMESEC` |
 
 ---
 
 ## Network Summary
 
 | Property | Value |
-| -------- | -------- |
-| Network | `10.10.10.0/24` |
-| IP Address | `10.10.10.10` |
-| Default Gateway | `FW-01` / `10.10.10.1` |
-| Domain | `primesec.local` |
+| --- | --- |
+| Internal network | `10.10.10.0/24` |
+| IP address | `10.10.10.10` |
+| Default gateway | `FW-01` / `10.10.10.1` |
+| AD DNS namespace | `primesec.local` |
+| DHCP provider | `FW-01` |
 
-The Active Directory NetBIOS name is `PRIMESEC`. DNS for the domain is provided through Active Directory Integrated DNS on `DC-01`.
+`DC-01` is authoritative for the `primesec.local` Active Directory DNS namespace.
 
 ---
 
@@ -44,7 +54,9 @@ The Active Directory NetBIOS name is `PRIMESEC`. DNS for the domain is provided 
 
 ### Active Directory Domain Services
 
-`DC-01` provides the core directory services for the domain, including:
+`DC-01` provides the core directory services for the domain.
+
+Its Active Directory role includes:
 
 - Domain authentication
 - User and group administration
@@ -52,33 +64,37 @@ The Active Directory NetBIOS name is `PRIMESEC`. DNS for the domain is provided 
 - Organizational Unit management
 - Centralized Windows administration
 
-The documented Organizational Unit structure separates administrative accounts, groups, servers, users, and workstations.
+The documented OU model separates administrative accounts, groups, servers, users, and workstations.
 
-    PRIMESEC
+```text
+primesec.local
+└── PRIMESEC
     ├── Admin
     ├── Groups
     ├── Servers
     ├── Users
     └── Workstations
+```
 
 ### DNS
 
 `DC-01` provides Active Directory Integrated DNS for `primesec.local`.
 
-Its DNS responsibilities include:
+Its DNS role supports:
 
-- Internal name resolution for the AD domain
-- Domain controller service discovery
-- Active Directory service location
+- Internal domain name resolution
+- Domain controller location
+- Active Directory service discovery
 - Forward lookup zone management
+- Domain-joined client operation
 
-`FW-01` remains the default gateway and DHCP provider. `DC-01` remains authoritative for Active Directory DNS.
+`FW-01` provides DHCP and gateway services. `DC-01` remains the authoritative DNS server for the Active Directory namespace.
 
 ### Group Policy
 
-`DC-01` manages Group Policy for the domain and workstation configuration.
+`DC-01` manages Group Policy for domain and workstation configuration.
 
-Implemented policies include:
+Implemented GPOs include:
 
 - `GPO-Domain-Password-Policy`
 - `GPO-Interactive-Logon-Notice`
@@ -92,10 +108,11 @@ Exported Group Policy reports are stored under `reports/gpo/`.
 ## Related Documentation
 
 | Document | Purpose |
-| -------- | -------- |
-| [Group Policy](group-policy.md) | Implemented GPOs and exported reports |
-| [DNS Configuration](../networking/dns.md) | Internal DNS responsibility model |
+| --- | --- |
+| [Group Policy](group-policy.md) | Implemented GPOs and policy scope |
 | [DC-01 Validation](validation.md) | Validation evidence for AD DS, DNS, and Group Policy |
+| [DNS Configuration](../networking/dns.md) | DNS and DHCP responsibility model |
+| [Group Policy Reports](../../reports/gpo/) | Exported GPO reports |
 
 ---
 
@@ -109,5 +126,5 @@ Validation covers:
 - Organizational Unit structure
 - Active Directory Integrated DNS
 - Domain controller health
-- Group Policy deployment
-- Workstation policy processing on `WS-01`
+- Group Policy linking
+- Implemented GPO settings

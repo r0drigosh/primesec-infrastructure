@@ -1,58 +1,56 @@
-# Group Policy Implementation
+# DC-01 Group Policy
 
 ## Purpose
 
-Group Policy was implemented to provide centralized configuration management across the PrimeSec Infrastructure environment.
+This document records the Group Policy configuration managed through `DC-01`.
 
-By leveraging Active Directory Group Policy Objects (GPOs), administrative controls can be applied consistently to domain-joined systems without requiring manual configuration on individual endpoints. This approach improves operational efficiency, reduces configuration drift, and enables standardized security controls across the environment.
-
-The implementation focuses on a small set of practical policies that reflect common enterprise administration practices while maintaining simplicity appropriate for a small infrastructure deployment.
+The implemented GPOs provide centralized configuration for domain password requirements, workstation security settings, Windows Update behavior, and the interactive logon notice.
 
 ---
 
-## Group Policy Strategy
+## Policy Model
 
-The Group Policy design follows a layered approach that separates domain-wide controls from workstation-specific configuration.
+Group Policy is separated between domain-level and workstation-level controls.
 
-Domain-level policies are used to enforce identity and authentication requirements that apply to all domain accounts. Workstation-level policies are linked to the Workstations Organizational Unit and are used to manage endpoint security and operating system behavior.
+| Scope | Purpose |
+| --- | --- |
+| `primesec.local` | Domain-wide account and password policy |
+| `PRIMESEC/Workstations` | Workstation security, update, and logon notice settings |
 
-This design provides:
-
-- Centralized administration
-- Consistent configuration management
-- Targeted policy deployment
-- Reduced administrative overhead
-- Simplified future expansion
-
-The Organizational Unit structure enables policies to be applied only where required, avoiding unnecessary configuration of unrelated systems while maintaining a clear administrative model.
+This keeps identity-related settings at the domain level and endpoint configuration under the workstation OU.
 
 ### Evidence
 
-![Group Policy Linking Strategy](../../assets/dc-01/gpo-linking.png)
+![Group Policy Linking](../../assets/dc-01/gpo-linking.png)
+
+---
+
+## Implemented GPOs
+
+| GPO | Scope |
+| --- | --- |
+| `GPO-Domain-Password-Policy` | `primesec.local` |
+| `GPO-Interactive-Logon-Notice` | `PRIMESEC/Workstations` |
+| `GPO-Workstation-Security-Baseline` | `PRIMESEC/Workstations` |
+| `GPO-Workstation-Windows-Update` | `PRIMESEC/Workstations` |
 
 ---
 
 ## Domain Password Policy
 
-The domain password policy establishes centralized credential requirements for all domain accounts.
+`GPO-Domain-Password-Policy` defines domain account password and lockout requirements.
 
-The policy enforces:
-
-- Password complexity requirements
-- Minimum password length of 12 characters
-- Password history of 24 remembered passwords
-- Maximum password age of 90 days
-- Minimum password age of 1 day
-- Account lockout after 5 failed logon attempts
-- Account lockout duration of 15 minutes
-- Reset counter after 15 minutes
-- Reversible password encryption disabled
-
-These controls help reduce the risk of weak credentials, password reuse, and unauthorized access attempts.
-
-### Business Justification
-
-Strong authentication controls are a fundamental security requirement in enterprise environments. Centralized password policies help protect user accounts from brute-force attacks while promoting consistent credential management practices throughout the domain.
+| Setting | Value |
+| --- | --- |
+| Enforce password history | `24 passwords remembered` |
+| Maximum password age | `90 days` |
+| Minimum password age | `1 day` |
+| Minimum password length | `12 characters` |
+| Password complexity | `Enabled` |
+| Reversible password encryption | `Disabled` |
+| Account lockout threshold | `5 invalid logon attempts` |
+| Account lockout duration | `15 minutes` |
+| Reset account lockout counter | `15 minutes` |
 
 ### Evidence
 
@@ -60,22 +58,32 @@ Strong authentication controls are a fundamental security requirement in enterpr
 
 ---
 
+## Interactive Logon Notice
+
+`GPO-Interactive-Logon-Notice` configures a logon banner for domain workstations.
+
+| Setting | Value |
+| --- | --- |
+| Message title | `PrimeSec Infrastructure` |
+| Message text | `Authorized Access Only. This workstation is managed by PrimeSec Infrastructure. Unauthorized use is prohibited and may be monitored.` |
+
+### Evidence
+
+![Interactive Logon Notice GPO](../../assets/dc-01/gpo-logon-notice.png)
+
+---
+
 ## Workstation Security Baseline
 
-A workstation security baseline was implemented to establish a consistent configuration standard for domain-joined endpoints.
+`GPO-Workstation-Security-Baseline` applies workstation security settings through Group Policy.
 
-The policy includes:
+| Setting | Value |
+| --- | --- |
+| Guest account status | `Disabled` |
+| Do not display last signed-in user | `Enabled` |
+| Turn off Microsoft Defender Antivirus | `Disabled` |
 
-- Guest account disabled
-- Last signed-in user information hidden
-- Centrally managed workstation security settings
-- Standardized endpoint configuration
-
-The objective is to ensure that workstations operate according to a defined baseline rather than relying on individual local configurations.
-
-### Business Justification
-
-Standardized workstation configuration reduces the likelihood of security misconfigurations and simplifies ongoing administration. Centralized baseline management also improves consistency across endpoints and supports scalable workstation administration.
+The Microsoft Defender setting means the GPO does not disable Microsoft Defender Antivirus.
 
 ### Evidence
 
@@ -83,23 +91,17 @@ Standardized workstation configuration reduces the likelihood of security miscon
 
 ---
 
-## Windows Update Management
+## Windows Update Policy
 
-A dedicated Windows Update policy was implemented to centrally manage operating system updates on domain-joined workstations.
+`GPO-Workstation-Windows-Update` configures automatic update behavior for domain workstations.
 
-The policy configures:
-
-- Automatic Updates enabled
-- Automatic download and installation
-- Daily update deployment schedule
-- Scheduled installation at 04:00
-- Prevention of automatic restarts while users are logged on
-
-This approach allows update deployment to be managed centrally while minimizing disruption to users.
-
-### Business Justification
-
-Consistent patch management is essential for maintaining endpoint security and system stability. Centralized update configuration helps ensure that workstations receive security updates in a predictable manner while reducing administrative effort and operational disruption.
+| Setting | Value |
+| --- | --- |
+| Configure Automatic Updates | `Enabled` |
+| Automatic update mode | `4 - Auto download and schedule the install` |
+| Scheduled install day | `0 - Every day` |
+| Scheduled install time | `04:00` |
+| No auto-restart with logged-on users | `Enabled` |
 
 ### Evidence
 
@@ -107,75 +109,27 @@ Consistent patch management is essential for maintaining endpoint security and s
 
 ---
 
-## Interactive Logon Notice
+## Exported Reports
 
-An interactive logon notice was deployed to display a security and authorized-use warning before user authentication.
+Group Policy reports are available under `reports/gpo/`.
 
-The policy presents users with an informational banner containing an authorized access statement and organizational notice.
-
-The implementation demonstrates centralized deployment of security messaging through Group Policy and reflects a commonly adopted enterprise practice.
-
-### Business Justification
-
-Logon banners help reinforce acceptable use expectations and provide notice that systems are intended for authorized users only. While the legal requirements vary between organizations, the use of security notices remains a common administrative control within enterprise environments.
-
-### Policy Configuration
-
-![Interactive Logon Policy](../../assets/dc-01/gpo-logon-notice.png)
-
-### User Experience Validation
-
-![Interactive Logon Notice](../../assets/ws-01/interactive-logon-notice.png)
+| Report | GPO |
+| --- | --- |
+| [GPO-Domain-Password-Policy](../../reports/gpo/GPO-Domain-Password-Policy.html) | `GPO-Domain-Password-Policy` |
+| [GPO-Interactive-Logon-Notice](../../reports/gpo/GPO-Interactive-Logon-Notice.html) | `GPO-Interactive-Logon-Notice` |
+| [GPO-Workstation-Security-Baseline](../../reports/gpo/GPO-Workstation-Security-Baseline.html) | `GPO-Workstation-Security-Baseline` |
+| [GPO-Workstation-Windows-Update](../../reports/gpo/GPO-Workstation-Windows-Update.html) | `GPO-Workstation-Windows-Update` |
 
 ---
 
-## Exported Policy Reports
+## Validation Reference
 
-In addition to the implementation screenshots included throughout this document, Group Policy reports were exported directly from the Group Policy Management Console.
+Group Policy validation is documented in [DC-01 Validation](validation.md).
 
-These reports provide detailed configuration information for each deployed policy and serve as implementation evidence and configuration references for the environment.
+Validation covers:
 
-Available reports include:
-
-- [GPO-Domain-Password-Policy](../../reports/gpo/GPO-Domain-Password-Policy.html)
-- [GPO-Interactive-Logon-Notice](../../reports/gpo/GPO-Interactive-Logon-Notice.html)
-- [GPO-Workstation-Security-Baseline](../../reports/gpo/GPO-Workstation-Security-Baseline.html)
-- [GPO-Workstation-Windows-Update](../../reports/gpo/GPO-Workstation-Windows-Update.html)
-
-The exported reports provide a detailed view of policy scope, configuration settings, security filtering, and link assignments. They supplement the documentation by providing a reproducible reference for the deployed Group Policy configuration.
-
----
-
-## Security Benefits
-
-The Group Policy implementation provides several operational and security benefits.
-
-### Centralized Administration
-
-Configuration changes can be deployed from a single management point rather than being applied individually to each endpoint.
-
-### Reduced Configuration Drift
-
-Policies help ensure that workstations remain aligned with organizational standards and reduce inconsistencies introduced through manual configuration.
-
-### Consistent Workstation Security
-
-Security settings are applied uniformly across managed systems, improving predictability and reducing the likelihood of endpoint misconfiguration.
-
-### Improved Operational Efficiency
-
-Administrative effort is reduced through centralized management, enabling common configuration tasks to be performed at the domain level.
-
-### Simplified Policy Management
-
-The Organizational Unit structure and targeted policy linking model provide a scalable foundation for future policy expansion and infrastructure growth.
-
----
-
-## Design Summary
-
-Group Policy was implemented as the primary mechanism for centralized configuration management within the PrimeSec Infrastructure environment.
-
-The deployment includes domain-wide authentication controls, workstation security baselines, centralized Windows Update management, and an interactive logon notice. Together, these policies demonstrate practical enterprise administration concepts including identity management, policy enforcement, endpoint standardization, and centralized operational control.
-
-The implementation provides a maintainable and scalable foundation for future infrastructure growth while demonstrating core Active Directory and Group Policy administration capabilities relevant to systems administration, infrastructure management, and enterprise IT operations.
+- GPO linking
+- Password policy settings
+- Interactive logon notice settings
+- Workstation security baseline settings
+- Windows Update policy settings
